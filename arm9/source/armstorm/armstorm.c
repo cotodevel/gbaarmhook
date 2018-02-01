@@ -19,20 +19,19 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
+
 #include "armstorm.h"
 #include "common.h"
 #include "thumb.h"
 #include "arm.h"
 
-#include <nds.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <nds/ndstypes.h>
-#include <nds/memory.h> //#include <memory.h>
-#include <nds/bios.h>
-#include <nds/system.h>
 
 // TBD: Finish formatting instruction to _TInst.
 

@@ -7,24 +7,30 @@
 //512 * 2 ^ n
 //base address / size (bytes) for DTCM (512<<n )
 
+//filesystem
+#include "fsfatlayerTGDS.h"
+#include "fileHandleTGDS.h"
+#include "InterruptsARMCores_h.h"
+#include "specific_shared.h"
+#include "ff.h"
+#include "memoryHandleTGDS.h"
+#include "reent.h"
+#include "sys/types.h"
+#include "consoleTGDS.h"
+#include "utilsTGDS.h"
+#include "devoptab_devices.h"
+#include "posixHandleTGDS.h"
+#include "xenofunzip.h"
+
 //arm9 main libs
-#include <nds.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>//BRK(); SBRK();
-#include <nds/ndstypes.h>
-#include <nds/memory.h>
-#include <nds/bios.h>
-#include <nds/system.h>
 #include <fcntl.h>
-#include <fat.h>
 #include <sys/stat.h>
-//#include <dswifi9.h>
 #include <errno.h>
 #include <ctype.h>
-#include <filesystem.h>
-#include <dirent.h>
 
 
 extern u32  __attribute__((section(".dtcm"))) 		rom;			//current rom pointer
@@ -256,7 +262,7 @@ void save_thread(u32 * srambuf);
 //r0    0=Return immediately if an old flag was already set (NDS9: bugged!)
 //      1=Discard old flags, wait until a NEW flag becomes set
 //r1    Interrupt flag(s) to wait for (same format as IE/IF registers)
-u32 nds9intrwait(u32 behaviour,u32 IF);
+u32 nds9intrwait(u32 behaviour,u32 GBAIF);
 u32 setirq(u32 irqtoset);
 
 // end NDS Interrupts

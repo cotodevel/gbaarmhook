@@ -1,4 +1,6 @@
-#include <nds.h>
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
 
 #include "util.h"
 #include "opcode.h"
@@ -43,7 +45,6 @@ u32 process_interrupts(u32 nds_ifmasking){
 //process callbacks (IEregister & IFregister)
 switch(*(u32*)(0x04000210) & nds_ifmasking){
 	case(1<<0): //LCD V-BLANK				
-		//iprintf("interrupt VBLANK served!\n");
 		//video_render((u32*)(u8*)gba.vidram);
 		//nds_ifmasking=stru32inlasm(0x04000214,0x0, 1<<0);
 		sendwordipc(0xe);
@@ -56,7 +57,6 @@ switch(*(u32*)(0x04000210) & nds_ifmasking){
 	
 	case(1<<2):	//LCD VCOUNTER MATCH
 		//cpu_refreshvcount();
-		//iprintf("interrupt VCNT served!\n");
 	break;
 	
 	case(1<<3):	//LCD TIMER0 overflow

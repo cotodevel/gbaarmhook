@@ -1,4 +1,6 @@
-#include <nds.h>
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
 
 //LUT table for fast-seeking 32bit depth unsigned values
 extern const  u8 minilut[0x10];
@@ -13,9 +15,8 @@ extern "C" {
 #endif
 
 //lookup calls
-u8 lutu16bitcnt(u16 x);
-u8 lutu32bitcnt(u32 x);
-
+extern u8 lutu16bitcnt(u16 x);
+extern u8 lutu32bitcnt(u32 x);
 
 //hardware environment Interruptable Bits for ARM7
 //IF
@@ -34,18 +35,18 @@ extern u32 	 cpsrasm;
 //void swiDelay();
 //void swiSleep();
 //void swiChangeSoundBias();
-u32 nds7_div(int x1, int y1);
+extern u32 nds7_div(int x1, int y1);
 
 //irq
 
 //r0    	0=Return immediately if an old flag was already set (NDS9: bugged!)
 //			1=Discard old flags, wait until a NEW flag becomes set
 //r1 	    Interrupt flag(s) to wait for (same format as IE/IF registers)
-u32 nds7intrwait(u8 behaviour,u32 if_towaitfor);
+extern u32 nds7intrwait(u8 behaviour,u32 if_towaitfor);
 
-u32 process_interrupts(u32 if_masks);
-u32 irqbiosinstall();
-u32 setirq(u32 irqtoset);
+extern u32 process_interrupts(u32 if_masks);
+extern u32 irqbiosinstall();
+extern u32 setirq(u32 irqtoset);
 
 #ifdef __cplusplus
 }

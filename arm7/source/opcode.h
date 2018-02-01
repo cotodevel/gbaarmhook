@@ -1,7 +1,9 @@
-#include <nds/ndstypes.h>
 
 //fifo & other opcode parts
 
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
 
 #ifndef FIFO_INSTANCE
 #define FIFO_INSTANCE
@@ -18,7 +20,6 @@ u32 REG_FIFO_ERRSENDRECVEMPTYFULL; //0<<14
 u32 REG_FIFO_ENABLESENDRECV; 	//0<<15
 };
 
-struct fifo_semaphore FIFO_SEMAPHORE_FLAGS;
 #endif
 
 extern struct fifo_semaphore FIFO_SEMAPHORE_FLAGS;

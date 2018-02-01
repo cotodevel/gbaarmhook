@@ -1,4 +1,7 @@
-#include <nds/ndstypes.h>
+
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
 
 //fifo & other opcode parts
 #ifndef OPCODE_PARTS

@@ -16,6 +16,24 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
+
+//filesystem
+#include "fsfatlayerTGDS.h"
+#include "fileHandleTGDS.h"
+#include "InterruptsARMCores_h.h"
+#include "specific_shared.h"
+#include "ff.h"
+#include "memoryHandleTGDS.h"
+#include "reent.h"
+#include "sys/types.h"
+#include "consoleTGDS.h"
+#include "utilsTGDS.h"
+#include "devoptab_devices.h"
+#include "posixHandleTGDS.h"
+#include "xenofunzip.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,20 +41,9 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <math.h>
-
-#include <unistd.h>//BRK(); SBRK();
-#include <fat.h>
-#include <filesystem.h>
-#include <dirent.h>
-
-#include <nds.h>
-#include <nds/ndstypes.h>
-#include <nds/memory.h>
-//#include <nds/bios.h>
-#include <nds/system.h>
-
-#include "../pu/supervisor.h"
-#include "../pu/pu.h"
+#include <unistd.h>
+#include "supervisor.h"
+#include "pu.h"
 #include "opcode.h"
 #include "util.h"
 #include "buffer.h"
@@ -139,17 +146,17 @@ if(flags) {
 	if(flags & 0x01) {
 		// clear work RAM
 		memset(gba.workram, 0, 0x40000);
-		//iprintf("do clean wram!");
+		//printf("do clean wram!");
 	}
 	if(flags & 0x02) {
 		// clear internal RAM
 		memset(gba.intram, 0, 0x7e00); // don't clear 0x7e00-0x7fff
-		//iprintf("do clean iwram!");
+		//printf("do clean iwram!");
 	}
 	if(flags & 0x04) {
 		// clear palette RAM
 		memset(gba.palram, 0, 0x400);
-		//iprintf("do clean palram!");
+		//printf("do clean palram!");
 	}
 	if(flags & 0x08) {
 		// clear VRAM
@@ -158,7 +165,7 @@ if(flags) {
 	if(flags & 0x10) {
 		// clean OAM
 		memset(gba.oam, 0, 0x400);
-		//iprintf("do clean oam!");
+		//printf("do clean oam!");
 	}
 	
 	if(flags & 0x80) {
@@ -180,7 +187,7 @@ if(flags) {
 		cpu_updateregisters(0x30, 0x100);			//CPUUpdateRegister(0x30, 0x100);
 		cpu_updateregisters(0x26, 0x100);			//CPUUpdateRegister(0x26, 0x100);
 		cpu_updateregisters(0x36, 0x100);			//CPUUpdateRegister(0x36, 0x100);
-		//iprintf("register map 1!");
+		//printf("register map 1!");
 	}
     
 	if(flags & 0x20) {
@@ -211,7 +218,7 @@ if(flags) {
 		for(i = 0; i < 8; i++)
 			cpu_updateregisters(0x90+(i*2), 0x0);		//CPUUpdateRegister(0x90+i*2, 0);
 		cpuwrite_byte(0x04000084, 0x0);					//CPUWriteByte(0x4000084, 0);
-	//iprintf("register map 2!");
+	//printf("register map 2!");
 	}
 	
 }

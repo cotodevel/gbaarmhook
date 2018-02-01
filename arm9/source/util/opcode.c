@@ -91,7 +91,7 @@ u32 u32store(u32 address1, u32 address2, u32 value){
 
 u16 u16store(u32 address1, u32 address2, u16 value){
 	*(u16*)((u32)(address1+address2))=value;
-	//iprintf("value stored @(%x):[%x]",
+	//printf("value stored @(%x):[%x]",
 	//(u32)(address1+address2),
 	//(unsigned int)*(u16*)((u32)(address1+address2)));
 	return 0;

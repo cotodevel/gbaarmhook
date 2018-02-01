@@ -1,10 +1,8 @@
-#include <nds.h>
-#include <nds/ndstypes.h>
-#include <nds/memory.h>
-//#include <nds/bios.h>
-#include <nds/system.h>
-//#include "../common/Types.h"
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
 
+#include "gbaemu4ds_fat_ext.h"
 #include "buffer.h"
 
 
@@ -20,9 +18,7 @@ volatile u8 __attribute__ ((aligned (1))) saveram[512*1024]; //512K
 volatile u32 buf_wram[(1024*1024)/4];
 
 //disk buffer
-volatile u32 /*__attribute__((section(".dtcm")))*/ disk_buf[sectorsize]; 
-
-//const u32 __attribute__ ((aligned (4))) gbaheaderbuf[0x200/4]; //reads must be u32, but allocate the correct size (of missing GBAROM which is 0x200 bytes from start)
+volatile u32 disk_buf[chucksize]; 
 
 //tests
 u32 tempbuffer[1024*1]; //1K test

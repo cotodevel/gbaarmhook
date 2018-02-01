@@ -1,5 +1,7 @@
 #include "opcode.h"
 
+struct fifo_semaphore FIFO_SEMAPHORE_FLAGS;
+
 //fifo
 u32 buffer_input[16],buffer_output[16];
 

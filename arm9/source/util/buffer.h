@@ -1,14 +1,30 @@
-//memory buffers
+#ifndef bufferGBAdefs
+#define bufferGBAdefs
+
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <unistd.h>//BRK(); SBRK();
-#include <nds.h>
-#include <nds/ndstypes.h>
-#include <nds/memory.h>
-#include <nds/system.h>
 
-#include "..\disk\stream_disk.h"
+//filesystem
+#include "fsfatlayerTGDS.h"
+#include "fileHandleTGDS.h"
+#include "InterruptsARMCores_h.h"
+#include "specific_shared.h"
+#include "ff.h"
+#include "memoryHandleTGDS.h"
+#include "reent.h"
+#include "sys/types.h"
+#include "consoleTGDS.h"
+#include "utilsTGDS.h"
+#include "devoptab_devices.h"
+#include "posixHandleTGDS.h"
+#include "xenofunzip.h"
+#include "gbaemu4ds_fat_ext.h"
 
 #ifdef __cplusplus 
 extern "C" {
@@ -25,13 +41,15 @@ extern volatile u8 __attribute__ ((aligned (1))) saveram[512*1024];
 
 extern volatile u32 buf_wram[(1024*1024)/4];
 
-//disk buffer
-extern volatile u32 /*__attribute__((section(".dtcm")))*/ disk_buf[sectorsize];
-
 //tests
 extern u32 tempbuffer[1024*1]; //1K test
 extern u32 tempbuffer2[1024*1]; //1K test
 
+
+extern volatile u32 disk_buf[chucksize];
+
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -1,17 +1,17 @@
+#ifndef biosGBAdefs
+#define biosGBAdefs
+
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <unistd.h>//BRK(); SBRK();
 #include <string.h>
 
-#include <nds.h>
-#include <nds/ndstypes.h>
-#include <nds/memory.h>
-//#include <nds/bios.h>
-#include <nds/system.h>
-
 extern s16 sinetable[256];
-
 
 #ifdef __cplusplus
 extern "C"{
@@ -45,4 +45,6 @@ u32 bios_snddriverjmptablecopy();			//swi 0x2a
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -1,19 +1,18 @@
-#include <nds/ndstypes.h>
-#include <nds.h>
+#ifndef translatorGBAdefs
+#define translatorGBAdefs
+
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>//BRK(); SBRK();
-#include <nds/ndstypes.h>
-#include <nds/memory.h>
-//#include <nds/bios.h>
-#include <nds/system.h>
-
-#include ".\util.h"
-#include ".\opcode.h"
-
-#include "..\pu\pu.h"
-#include "..\pu\supervisor.h"
+#include "util.h"
+#include "opcode.h"
+#include "pu.h"
+#include "supervisor.h"
 
 /*
  GBA Memory Map
@@ -158,3 +157,4 @@ u8	ldru8extasm(u32 x1,u8 y1);
 }
 #endif
 
+#endif

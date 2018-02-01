@@ -1,7 +1,10 @@
-#include <nds.h>
-#include <fat.h>
-#include <filesystem.h>
-#include <dirent.h>
+#ifndef utilGBAdefs
+#define utilGBAdefs
+
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
+
 #include <unistd.h>    // for sbrk()
 
 #include <stdio.h>
@@ -9,11 +12,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include <nds/memory.h>
-#include <nds/ndstypes.h>
-
-#include "../zlib/zlib.h"
-#include "../zlib/zip/unzip.h"
+#define BIT(n) (1 << (n))
 
 //ramtest roundup
 #define ramshuffle7(n,m) ( (n* (rand() % m)) &0xfffff0) //int , top
@@ -236,84 +235,84 @@ struct GBASystem{
 
 	u32 dummysrc;
 	
-    u16 DISPCNT;
-    u16 DISPSTAT;
-    u16 VCOUNT;
-    u16 BG0CNT;
-    u16 BG1CNT;
-    u16 BG2CNT;
-    u16 BG3CNT;
-    u16 BG0HOFS;
-    u16 BG0VOFS;
-    u16 BG1HOFS;
-    u16 BG1VOFS;
-    u16 BG2HOFS;
-    u16 BG2VOFS;
-    u16 BG3HOFS;
-    u16 BG3VOFS;
-    u16 BG2PA;
-    u16 BG2PB;
-    u16 BG2PC;
-    u16 BG2PD;
-    u16 BG2X_L;
-    u16 BG2X_H;
-    u16 BG2Y_L;
-    u16 BG2Y_H;
-    u16 BG3PA;
-    u16 BG3PB;
-    u16 BG3PC;
-    u16 BG3PD;
-    u16 BG3X_L;
-    u16 BG3X_H;
-    u16 BG3Y_L;
-    u16 BG3Y_H;
-    u16 WIN0H;
-    u16 WIN1H;
-    u16 WIN0V;
-    u16 WIN1V;
-    u16 WININ;
-    u16 WINOUT;
-    u16 MOSAIC;
-    u16 BLDMOD;
-    u16 COLEV;
-    u16 COLY;
-    u16 DM0SAD_L;
-    u16 DM0SAD_H;
-    u16 DM0DAD_L;
-    u16 DM0DAD_H;
-    u16 DM0CNT_L;
-    u16 DM0CNT_H;
-    u16 DM1SAD_L;
-    u16 DM1SAD_H;
-    u16 DM1DAD_L;
-    u16 DM1DAD_H;
-    u16 DM1CNT_L;
-    u16 DM1CNT_H;
-    u16 DM2SAD_L;
-    u16 DM2SAD_H;
-    u16 DM2DAD_L;
-    u16 DM2DAD_H;
-    u16 DM2CNT_L;
-    u16 DM2CNT_H;
-    u16 DM3SAD_L;
-    u16 DM3SAD_H;
-    u16 DM3DAD_L;
-    u16 DM3DAD_H;
-    u16 DM3CNT_L;
-    u16 DM3CNT_H;
-    u16 TM0D;
-    u16 TM0CNT;
-    u16 TM1D;
-    u16 TM1CNT;
-    u16 TM2D;
-    u16 TM2CNT;
-    u16 TM3D;
-    u16 TM3CNT;
-    u16 P1;
+    u16 GBADISPCNT;
+    u16 GBADISPSTAT;
+    u16 GBAVCOUNT;
+    u16 GBABG0CNT;
+    u16 GBABG1CNT;
+    u16 GBABG2CNT;
+    u16 GBABG3CNT;
+    u16 GBABG0HOFS;
+    u16 GBABG0VOFS;
+    u16 GBABG1HOFS;
+    u16 GBABG1VOFS;
+    u16 GBABG2HOFS;
+    u16 GBABG2VOFS;
+    u16 GBABG3HOFS;
+    u16 GBABG3VOFS;
+    u16 GBABG2PA;
+    u16 GBABG2PB;
+    u16 GBABG2PC;
+    u16 GBABG2PD;
+    u16 GBABG2X_L;
+    u16 GBABG2X_H;
+    u16 GBABG2Y_L;
+    u16 GBABG2Y_H;
+    u16 GBABG3PA;
+    u16 GBABG3PB;
+    u16 GBABG3PC;
+    u16 GBABG3PD;
+    u16 GBABG3X_L;
+    u16 GBABG3X_H;
+    u16 GBABG3Y_L;
+    u16 GBABG3Y_H;
+    u16 GBAWIN0H;
+    u16 GBAWIN1H;
+    u16 GBAWIN0V;
+    u16 GBAWIN1V;
+    u16 GBAWININ;
+    u16 GBAWINOUT;
+    u16 GBAMOSAIC;
+    u16 GBABLDMOD;
+    u16 GBACOLEV;
+    u16 GBACOLY;
+    u16 GBADM0SAD_L;
+    u16 GBADM0SAD_H;
+    u16 GBADM0DAD_L;
+    u16 GBADM0DAD_H;
+    u16 GBADM0CNT_L;
+    u16 GBADM0CNT_H;
+    u16 GBADM1SAD_L;
+    u16 GBADM1SAD_H;
+    u16 GBADM1DAD_L;
+    u16 GBADM1DAD_H;
+    u16 GBADM1CNT_L;
+    u16 GBADM1CNT_H;
+    u16 GBADM2SAD_L;
+    u16 GBADM2SAD_H;
+    u16 GBADM2DAD_L;
+    u16 GBADM2DAD_H;
+    u16 GBADM2CNT_L;
+    u16 GBADM2CNT_H;
+    u16 GBADM3SAD_L;
+    u16 GBADM3SAD_H;
+    u16 GBADM3DAD_L;
+    u16 GBADM3DAD_H;
+    u16 GBADM3CNT_L;
+    u16 GBADM3CNT_H;
+    u16 GBATM0D;
+    u16 GBATM0CNT;
+    u16 GBATM1D;
+    u16 GBATM1CNT;
+    u16 GBATM2D;
+    u16 GBATM2CNT;
+    u16 GBATM3D;
+    u16 GBATM3CNT;
+    u16 GBAP1;
 	
-    //u16 IE;	//replaced with iemasking
-    //u16 IF;	//replaced with ifmasking
-    //u16 IME;  //replaced with imemasking
+    //u16 GBAIE;	//replaced with iemasking
+    //u16 GBAIF;	//replaced with ifmasking
+    //u16 GBAIME;  //replaced with imemasking
 	
 	u8 cpustate;	//1 virtualizing / 0 halt
 	
@@ -483,7 +482,9 @@ u32 * updatestackfp(u32 * currstack_fp, u32 * stackbase);
 
 u32 dummycall(u32 arg);
 
+extern void __libnds_mpu_setup();
 #ifdef __cplusplus
 }
 #endif
 
+#endif

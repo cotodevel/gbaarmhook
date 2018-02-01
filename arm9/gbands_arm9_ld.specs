@@ -1,0 +1,7 @@
+%rename link                old_link
+
+*link:
+%(old_link) -T gbands_arm9_ld.ld%s
+
+*startfile:
+./build/ds_arm9_crt0%O%s crti%O%s crtbegin%O%s

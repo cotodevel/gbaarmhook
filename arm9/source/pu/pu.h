@@ -1,6 +1,7 @@
-#include <nds.h>
-#include <fat.h>
-#include <filesystem.h>
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
+
 #include <dirent.h>
 #include <unistd.h>    // for sbrk()
 
@@ -12,9 +13,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <ctype.h>
-
-#include "../arm9.h"
-
+#include "main.h"
 
 //PU setup all NDS region addresses
 #define debug_vect	(*(intfuncptr *)(0x02FFFD9C)) //ori: #define EXCEPTION_VECTOR	(*(VoidFn *)(0x2FFFD9C))
@@ -222,7 +221,7 @@ extern u32 __attribute__((section(".dtcm"))) curr_exception[]; //inter_regs.s
 
 //cpu_SetCP15Cnt(cpu_GetCP15Cnt() & ~0x1);
 //2 = 2048 / 3 = 4096 / 4 = 8192 / 5 = 16384
-//iprintf("%x \n",setdtcmsz(5)); //0x027C0000
+//printf("%x \n",setdtcmsz(5)); //0x027C0000
 //pu_Enable();
 
 #ifdef __cplusplus

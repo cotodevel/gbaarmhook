@@ -22,15 +22,13 @@
 //coto: structs are extern'd, so program can be compiled from C to C++, and structs can be accessed backwards.
 //coto: also, datatypes are preset to C calling convention so C++ compilers can link these calls from C standard
 
-#include <nds/memory.h> //#include <memory.h> coto: libnds memory functions
-#include <nds.h>
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <nds/ndstypes.h>
-#include <nds/bios.h>
-#include <nds/system.h>
 #include <unistd.h>
 
 #include "armstorm.h"

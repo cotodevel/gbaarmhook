@@ -1,43 +1,36 @@
-#include <nds.h>
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>//BRK(); SBRK();
-#include <nds/ndstypes.h>
-#include <nds/memory.h>
-#include <nds/bios.h>
-#include <nds/system.h>
 #include <fcntl.h>
-#include <fat.h>
 #include <sys/stat.h>
 
 //Protection Unit calls, wrappers, go here.
 #include "pu.h"
 #include "supervisor.h"
-
-#include "../util/opcode.h"
-#include "../util/util.h"
-#include "../util/buffer.h"
-#include "../util/translator.h"
+#include "opcode.h"
+#include "util.h"
+#include "buffer.h"
+#include "translator.h"
 
 //filesystem
-#include "../disk/dldi.h"
-#include "../disk/file_browse.h"
-#include "../disk/disc.h"
-#include "../disk/fatfile.h"
-#include "../disk/directory.h"
-#include "../disk/dldi_patcher.h"
-#include "../disk/partition.h"
-#include "../disk/mem_allocate.h"
-#include "../disk/bit_ops.h"
-#include "../disk/disc_io.h"
-//#include ".\nds_loader_arm9.h" //<<--dldi_patcher.h is an update of this
-#include "../disk/file_allocation_table.h"
-#include "../disk/cache.h"
-#include "../disk/lock.h"
-#include "../disk/directory.h"
-#include "../disk/filetime.h"
-#include "../disk/stream_disk.h"
+#include "fsfatlayerTGDS.h"
+#include "fileHandleTGDS.h"
+#include "InterruptsARMCores_h.h"
+#include "specific_shared.h"
+#include "ff.h"
+#include "memoryHandleTGDS.h"
+#include "reent.h"
+#include "sys/types.h"
+#include "consoleTGDS.h"
+#include "utilsTGDS.h"
+#include "devoptab_devices.h"
+#include "posixHandleTGDS.h"
+#include "xenofunzip.h"
 
 
 /* exception vector abort handlers
@@ -240,9 +233,9 @@ __asm__ volatile (
 :[reg0] "=r" (reg0),[reg1] "=r" (reg1),[reg2] "=r" (reg2),[reg3] "=r" (reg3),[reg13] "=r" (reg13),[reg14] "=r" (reg14),[reg15] "=r" (reg15)
 );	//r = hardware registers / g = frame pointer indirect stacking of registers
 
-iprintf("\n EXCEPTION HAS OCCURED: \n CPSR:(%x) \n SPSR:(%x)  ",(unsigned int)cpuGetCPSR(),(unsigned int)cpuGetSPSR());
-iprintf("r0: %x |r1: %x |r2: %x |r3: %x \n",(unsigned int)reg0,(unsigned int)reg1,(unsigned int)reg2,(unsigned int)reg3);
-iprintf("r13: %x |r14: %x |r15: %x \n",(unsigned int)reg13,(unsigned int)reg14,(unsigned int)reg15);
+printf("\n EXCEPTION HAS OCCURED: \n CPSR:(%x) \n SPSR:(%x)  ",(unsigned int)cpuGetCPSR(),(unsigned int)cpuGetSPSR());
+printf("r0: %x |r1: %x |r2: %x |r3: %x \n",(unsigned int)reg0,(unsigned int)reg1,(unsigned int)reg2,(unsigned int)reg3);
+printf("r13: %x |r14: %x |r15: %x \n",(unsigned int)reg13,(unsigned int)reg14,(unsigned int)reg15);
 
 return 0;
 }
@@ -250,7 +243,7 @@ return 0;
 /* Exception Vectors */
 u32 exceptreset(){
 	exception_dump();
-	iprintf("\n PU exception type: RESET \n " );
+	printf("\n PU exception type: RESET \n " );
 	while(1);
 return 0;
 }
@@ -267,32 +260,32 @@ u32 exceptundef(u32 undefopcode){
 		:[lnk_ptr] "=r" (lnk_ptr)
 		);
 	
-		iprintf("\n before exception: ");
-		if (cpuGetSPSR() & 0x5) iprintf("thumb mode ");
-		else iprintf("ARM mode ");
+		printf("\n before exception: ");
+		if (cpuGetSPSR() & 0x5) printf("thumb mode ");
+		else printf("ARM mode ");
 	
-		iprintf("\n IN exception: ");
-		if (cpuGetCPSR() & 0x5) iprintf("thumb mode ");
-		else iprintf("ARM mode ");
-		iprintf("\n OPCODE: %x",undefopcode);
-		iprintf("\n PU exception type: UNDEFINED \n at %p (0x%08X) ", lnk_ptr, *(lnk_ptr));
+		printf("\n IN exception: ");
+		if (cpuGetCPSR() & 0x5) printf("thumb mode ");
+		else printf("ARM mode ");
+		printf("\n OPCODE: %x",undefopcode);
+		printf("\n PU exception type: UNDEFINED \n at %p (0x%08X) ", lnk_ptr, *(lnk_ptr));
 	
 	pu_Enable();
 	*/
 	
 	//cpu_SetCP15Cnt(cpu_GetCP15Cnt() & ~0x1);	//MPU turning /off/on causes to jump to 0x00000000
 		/*
-		iprintf("\n before exception: ");
-		if (cpuGetSPSR() & 0x5) iprintf("thumb mode ");
-		else iprintf("ARM mode ");
+		printf("\n before exception: ");
+		if (cpuGetSPSR() & 0x5) printf("thumb mode ");
+		else printf("ARM mode ");
 	
-		iprintf("\n IN exception: ");
-		if (cpuGetCPSR() & 0x5) iprintf("thumb mode ");
-		else iprintf("ARM mode ");
+		printf("\n IN exception: ");
+		if (cpuGetCPSR() & 0x5) printf("thumb mode ");
+		else printf("ARM mode ");
 		*/
 		
 		exception_dump();
-		iprintf("\n PU exception type: UNDEFINED \n");
+		printf("\n PU exception type: UNDEFINED \n");
 		while(1);
 
 	//pu_Enable();
@@ -302,41 +295,41 @@ return 0;
 
 //swi abort part
 u32 exceptswi (u32 swiaddress){
-//iprintf("[swi: %x] \n",(unsigned int)swiaddress); //sorry, swi code can¡t handle printf overflows?!!
+//printf("[swi: %x] \n",(unsigned int)swiaddress); //sorry, swi code can¡t handle printf overflows?!!
 //while(1);
-//iprintf("swi ctm \n");
+//printf("swi ctm \n");
 	if (swiaddress == 0x0){
 	//swi 0
-	//iprintf("swi 0! \n");
+	//printf("swi 0! \n");
 	return 0;
 	}
 	else if(swiaddress == 0x1){
 	//swi 1
-	//iprintf("swi 1! \n");
+	//printf("swi 1! \n");
 	return 0;
 	}
 	else if(swiaddress == 0x2){
 	//swi 2
-	//iprintf("swi 2! \n");
+	//printf("swi 2! \n");
 	return 0;
 	}
 	
 	else if(swiaddress == 0x4){
 	//swi 2
-	//iprintf("swi 4! \n");
+	//printf("swi 4! \n");
 	return 0;
 	}
 	
 	/*
 	//detect game filesize otherwise cause freezes
 	else if((swiaddress >= 0x08000000) && (swiaddress < (romsize+0x08000000))  ){
-	//iprintf("swigb\n");
+	//printf("swigb\n");
 	//return (ichfly_readu32(swiaddress ^ (u32)0x08000000));
 	}
 	*/
 	
 	else{
-	//iprintf("swi unknown! \n");
+	//printf("swi unknown! \n");
 	/*
 		//cpu_SetCP15Cnt(cpu_GetCP15Cnt() & ~0x1);
 		unsigned int *lnk_ptr;
@@ -347,24 +340,24 @@ u32 exceptswi (u32 swiaddress){
 		:[lnk_ptr] "=r" (lnk_ptr)
 		);
 	
-		iprintf("\n before exception: ");
-		if (cpuGetSPSR() & 0x5) iprintf("thumb mode ");
-		else iprintf("ARM mode ");
+		printf("\n before exception: ");
+		if (cpuGetSPSR() & 0x5) printf("thumb mode ");
+		else printf("ARM mode ");
 	
-		iprintf("\n IN exception: ");
-		if (cpuGetCPSR() & 0x5) iprintf("thumb mode ");
-		else iprintf("ARM mode ");
-		iprintf("\n SWI #num: %x",swiaddress);
-		iprintf("\n PU exception type: swi \n at %p (0x%08X) ", lnk_ptr, *(lnk_ptr));
-		//iprintf("\n btw romsize: %x",romsize);
+		printf("\n IN exception: ");
+		if (cpuGetCPSR() & 0x5) printf("thumb mode ");
+		else printf("ARM mode ");
+		printf("\n SWI #num: %x",swiaddress);
+		printf("\n PU exception type: swi \n at %p (0x%08X) ", lnk_ptr, *(lnk_ptr));
+		//printf("\n btw romsize: %x",romsize);
 	
 		//pu_Enable();
 	*/
 	}
 
 exception_dump();
-iprintf("swi exception within range 0..1Fh.");
-iprintf("\n PU exception type: SWI \n");
+printf("swi exception within range 0..1Fh.");
+printf("\n PU exception type: SWI \n");
 while(1);
 	
 return 0;
@@ -373,7 +366,7 @@ return 0;
 u32 exceptprefabt(){
 
 exception_dump();
-iprintf("\n PU exception type: PREFETCH ABORT \n");
+printf("\n PU exception type: PREFETCH ABORT \n");
 while(1);
 
 return 0;
@@ -386,12 +379,12 @@ u32 exceptdataabt(u32 dabtaddress){
 	if( ((cpsrvirt>>5)&1) == 0x1 ){
 	
 		if((dabtaddress >= 0x08000000) && (dabtaddress < 0x08000200)  ){
-			//iprintf("\n => data abt! (%x):%x ",dabtaddress,gbaheaderbuf[(dabtaddress ^ 0x08000000)/4]);
+			//printf("\n => data abt! (%x):%x ",dabtaddress,gbaheaderbuf[(dabtaddress ^ 0x08000000)/4]);
 			return ((gbaheaderbuf[(dabtaddress ^ 0x08000000)/4])&0xffff);
 		}
 	
 		else if((dabtaddress >= 0x08000200) && (dabtaddress < (romsize+0x08000000))  ){
-			//iprintf("\n => data abt! (%x):%x ",dabtaddress,ichfly_readu32(dabtaddress ^ 0x08000000));
+			//printf("\n => data abt! (%x):%x ",dabtaddress,ichfly_readu32(dabtaddress ^ 0x08000000));
 			return stream_readu16(dabtaddress ^ 0x08000000);
 		}
 	}
@@ -399,18 +392,18 @@ u32 exceptdataabt(u32 dabtaddress){
 	else{
 	
 		if((dabtaddress >= 0x08000000) && (dabtaddress < 0x08000200)  ){
-			//iprintf("\n => data abt! (%x):%x ",dabtaddress,gbaheaderbuf[(dabtaddress ^ 0x08000000)/4]);
+			//printf("\n => data abt! (%x):%x ",dabtaddress,gbaheaderbuf[(dabtaddress ^ 0x08000000)/4]);
 			return gbaheaderbuf[(dabtaddress ^ 0x08000000)/4];
 		}
 	
 		else if((dabtaddress >= 0x08000200) && (dabtaddress < (romsize+0x08000000))  ){
-			//iprintf("\n => data abt! (%x):%x ",dabtaddress,ichfly_readu32(dabtaddress ^ 0x08000000));
+			//printf("\n => data abt! (%x):%x ",dabtaddress,ichfly_readu32(dabtaddress ^ 0x08000000));
 			return stream_readu32(dabtaddress ^ 0x08000000);
 		}
 	}
 	*/
 
-iprintf("data abort exception!");
+printf("data abort exception!");
 exception_dump();
 while(1);	
 return 0;
@@ -427,10 +420,10 @@ u32 exceptirq(u32 nds_iemask,u32 nds_ifmask,u32 sp_ptr){
 //cback_entry(sp_ptr); //save LR ori
 
 //1/2 NDS IRQ
-//iprintf("NDS IRQ stack pointer: %x! \n",(unsigned int) sp_ptr);
+//printf("NDS IRQ stack pointer: %x! \n",(unsigned int) sp_ptr);
 //while(1);
 
-//iprintf("NDS IRQ \n!");
+//printf("NDS IRQ \n!");
 
 //process callbacks (IEregister & IFregister)
 switch((nds_iemasking=nds_iemask) & (nds_ifmasking=nds_ifmask)){
@@ -485,7 +478,6 @@ switch((nds_iemasking=nds_iemask) & (nds_ifmasking=nds_ifmask)){
 	
 	case(1<<12)://Keypad
 		
-		scanKeys();
 	break;
 	
 	case(1<<13)://GBA-Slot (external IRQ source)
@@ -512,7 +504,7 @@ switch((nds_iemasking=nds_iemask) & (nds_ifmasking=nds_ifmask)){
 	break;
 	
 	case(1<<19): // NDS-Slot Game Card Data Transfer Completion
-		//iprintf("irq cart!");
+		//printf("irq cart!");
 	break;
 	
 	case(1<<20): //NDS-Slot Game Card IREQ_MC
@@ -542,7 +534,7 @@ switch((nds_iemasking=nds_iemask) & (nds_ifmasking=nds_ifmask)){
 }
 
 
-//iprintf("GBA IRQ request! \n");
+//printf("GBA IRQ request! \n");
 //2/2 GBA IRQ
 //process callbacks (IEregister & IFregister)
 switch(gbavirt_iemasking & gbavirt_ifmasking){
@@ -609,7 +601,6 @@ switch(gbavirt_iemasking & gbavirt_ifmasking){
 	case(1<<12)://Keypad
 		
 		gbavirt_ifmasking&=~(1<<12);
-		scanKeys();
 	break;
 	
 	case(1<<13)://GBA-Slot (external IRQ source)
@@ -629,11 +620,11 @@ return nds_ifmasking;
 
 //bios handler, does not work with MPU vectors set to 0x00000000
 void gbhandler(){
-exceptionStack = (u32)0x23EFFFC;
+//exceptionStack = (u32)0x23EFFFC;
 debug_vect = (intfuncptr)&inter_swi; //&enter_except; //correct way
 //*curr_exception=(u32)exceptdataabt; //add curr_exception later if you ever need it
 
-//iprintf("inter_swi(): (%x) @t 0x02FFFD9C \n",(u32)&inter_swi);
+//printf("inter_swi(): (%x) @t 0x02FFFD9C \n",(u32)&inter_swi);
 }
 
 void emulateedbiosstart(){
@@ -658,7 +649,7 @@ nopinlasm();
 	//let's flush only DTCM that is not used..
 	//DC_FlushRange((const void*)dtcm_end_alloced+0x1, ((dtcm_top_ld-getdtcmbase()) - (0x400*4)) - reserved_dtcm ); //(const void* , u32 v)
 	
-	//iprintf("free DTCM cache: (%d)bytes",(int)( ((dtcm_top_ld-getdtcmbase()) - (0x400*4)) - reserved_dtcm) );
+	//printf("free DTCM cache: (%d)bytes",(int)( ((dtcm_top_ld-getdtcmbase()) - (0x400*4)) - reserved_dtcm) );
 	
 	
 	//lockdown DCACHE
@@ -721,7 +712,7 @@ nopinlasm();
 	pu_SetRegion(3, (u32)&gbawram	| sizeof(gbawram)	|1);	//GBAWRAM OK
 	pu_SetRegion(4, vector_addr 	|	(vector_end_addr-vector_addr) 		|1);	//vectors
 	
-	//iprintf("GBAWRAM size is: %x",(unsigned int)sizeof(gbawram));
+	//printf("GBAWRAM size is: %x",(unsigned int)sizeof(gbawram));
 	nopinlasm();
 
 	//dtcm & itcm do not use write/cache buffers | IO ports included
@@ -739,10 +730,10 @@ nopinlasm();
 
 //requires: 1) asm handlers 2) they are on itcm 3) call to C handlers for each asm handler
 #ifdef NONDS9HANDLERS
-	iprintf("PU: set exception vec @0x00000000\n ");
+	printf("PU: set exception vec @0x00000000\n ");
 	emulateedbiosstart();
 #else
-	iprintf("PU: set exception vec @0xffff0000\n ");
+	printf("PU: set exception vec @0xffff0000\n ");
 	*(u32*)(0x027FFD9C)=(u32)&exception_dump;
 #endif
 

@@ -1,13 +1,35 @@
+
+#include "typedefsTGDS.h"
+#include "dsregs.h"
+#include "dsregs_asm.h"
+
+
 #include "util.h"
 #include "opcode.h"
-#include "..\arm9.h"
-#include "../disk/stream_disk.h"
-#include "..\pu\pu.h"
-#include "..\pu\supervisor.h"
-#include ".\buffer.h"
-#include ".\translator.h"	//for patches setup
-#include "..\disk\file_browse.h"
-#include "..\settings.h"
+#include "main.h"
+
+//filesystem
+#include "fsfatlayerTGDS.h"
+#include "fileHandleTGDS.h"
+#include "InterruptsARMCores_h.h"
+#include "specific_shared.h"
+#include "ff.h"
+#include "memoryHandleTGDS.h"
+#include "reent.h"
+#include "sys/types.h"
+#include "consoleTGDS.h"
+#include "utilsTGDS.h"
+#include "devoptab_devices.h"
+#include "posixHandleTGDS.h"
+#include "zlib.h"
+#include "xenofunzip.h"
+#include "gbaemu4ds_fat_ext.h"
+
+#include "pu.h"
+#include "supervisor.h"
+#include "buffer.h"
+#include "translator.h"	//for patches setup
+#include "settings.h"
 
 int i=0;
 
@@ -34,9 +56,9 @@ u8 lutu32bitcnt(u32 x){
 
 
 //count bits set in u32 field and return u32 decimal #imm
-//iprintf("\n ammount of register bytes: %x",(unsigned int)lookupu16(thumbinstr&0xff));
+//printf("\n ammount of register bytes: %x",(unsigned int)lookupu16(thumbinstr&0xff));
 //u32 temp=0x00000000;
-//iprintf("lut:%d",lutu32bitcnt(temp));	//(thumbinstr&0xff)
+//printf("lut:%d",lutu32bitcnt(temp));	//(thumbinstr&0xff)
 
 const u32  objtilesaddress [3] = {0x010000, 0x014000, 0x014000};
 const u8 gamepakramwaitstate[4] = { 4, 3, 2, 8 };
@@ -50,7 +72,7 @@ const bool isInRom [16]=
 
 
 u32 dummycall(u32 arg){
-//iprintf ("hi i am a dummy call whose arg is: [%x] \n",(unsigned int)arg);
+//printf ("hi i am a dummy call whose arg is: [%x] \n",(unsigned int)arg);
 return arg;
 }
 
@@ -75,31 +97,31 @@ return 0;
 int getphystacksz(u32 * curr_stack){
 
 if((u32)(u32*)curr_stack == (u32)&gbastck_usr[0])
-	return gba_stack_usr_size; //iprintf("stack usr! \n"); 
+	return gba_stack_usr_size; //printf("stack usr! \n"); 
 	
 else if ((u32)(u32*)curr_stack == (u32)&gbastck_fiq[0])
-	return gba_stack_fiq_size; //iprintf("stack fiq! \n");
+	return gba_stack_fiq_size; //printf("stack fiq! \n");
  
 else if ((u32)(u32*)curr_stack == (u32)&gbastck_irq[0])
-	return gba_stack_irq_size; //iprintf("stack irq! \n"); 
+	return gba_stack_irq_size; //printf("stack irq! \n"); 
 
 else if ((u32)(u32*)curr_stack == (u32)&gbastck_svc[0])
-	return gba_stack_svc_size; //iprintf("stack svc! \n"); 
+	return gba_stack_svc_size; //printf("stack svc! \n"); 
 
 else if ((u32)(u32*)curr_stack == (u32)&gbastck_abt[0])
-	return gba_stack_abt_size; //iprintf("stack abt! \n"); 
+	return gba_stack_abt_size; //printf("stack abt! \n"); 
 
 else if ((u32)(u32*)curr_stack == (u32)&gbastck_und[0])
-	return gba_stack_und_size; //iprintf("stack und! \n"); 
+	return gba_stack_und_size; //printf("stack und! \n"); 
 
 //else if ((u32)(u32*)curr_stack == (u32)&gbastck_sys[0])
-	//return gba_stack_sys_size; //iprintf("stack sys! \n"); 
+	//return gba_stack_sys_size; //printf("stack sys! \n"); 
 
 else if ((u32)(u32*)curr_stack == (u32)&branch_stack[0])
 	return gba_branch_table_size; //branch table size 
 	
 else
-	return 0xdeaddead; //iprintf("ERROR STACK NOT DETECTED \n ");
+	return 0xdeaddead; //printf("ERROR STACK NOT DETECTED \n ");
 	
 }
 
@@ -119,20 +141,20 @@ if(testmode==0){
 
 		//fill! (+1 because we want the real integer modulus) 
 		if( ((ctr+1) % 0x10) == 0){
-			//iprintf("\n <r%d:[%x]>",j,(unsigned int)*((u32*)branchfpbu+j));
+			//printf("\n <r%d:[%x]>",j,(unsigned int)*((u32*)branchfpbu+j));
 			j=0;
 		}
 
 		else {
 			//gbavirtreg_cpu[j]=0xc070+(j<<8);
-			//iprintf("stack: @ %x for save data\n",(unsigned int)((u32)(u32*)stackfpbu+(ctr*4)));
+			//printf("stack: @ %x for save data\n",(unsigned int)((u32)(u32*)stackfpbu+(ctr*4)));
 			cpuwrite_word((unsigned int)(((u32)stackfpbu)+(ctr*4)),0xc070+(j<<8));
-			//iprintf("(%x)[%x]\n",(unsigned int)((u32)(u32*)stackfpbu+(ctr*4)), (unsigned int) cpuread_word((u32)((u32)(u32*)stackfpbu+(ctr*4))));
+			//printf("(%x)[%x]\n",(unsigned int)((u32)(u32*)stackfpbu+(ctr*4)), (unsigned int) cpuread_word((u32)((u32)(u32*)stackfpbu+(ctr*4))));
 			j++;
 		}
 	
 		//debug
-		//if(ctr>15) { iprintf("halt"); while(1);}
+		//if(ctr>15) { printf("halt"); while(1);}
 	}
 	j=0;
 	// 2/2 reads and check
@@ -140,7 +162,7 @@ if(testmode==0){
 
 		//fill! (+1 because we want the real integer modulus) 
 		if( ((ctr+1) % 0x10) == 0){
-			//iprintf("\n <r%d:[%x]>",j,(unsigned int)*((u32*)branchfpbu+j));
+			//printf("\n <r%d:[%x]>",j,(unsigned int)*((u32*)branchfpbu+j));
 			j=0;
 		}
 
@@ -151,15 +173,15 @@ if(testmode==0){
 				j++;
 			}
 			else{
-				iprintf("\n [GBAStack] STUCK AT: base(%x)+(%x)",(unsigned int)(u32*)stackfpbu,(unsigned int)(ctr*4));
-				iprintf("\n [GBAStack] value: [%x]",(unsigned int)cpuread_word((((u32)stackfpbu+(ctr*4)))));
+				printf("\n [GBAStack] STUCK AT: base(%x)+(%x)",(unsigned int)(u32*)stackfpbu,(unsigned int)(ctr*4));
+				printf("\n [GBAStack] value: [%x]",(unsigned int)cpuread_word((((u32)stackfpbu+(ctr*4)))));
 				
 				while (1);
 			}
 		}
 	
 		//debug
-		//if(ctr>15) { iprintf("halt"); while(1);}
+		//if(ctr>15) { printf("halt"); while(1);}
 	}
 	
 	
@@ -171,7 +193,7 @@ else if(testmode==1){
 
 		//fill!
 		if( (ctr % 0x10) == 0){
-			//iprintf("\n <r%d:[%x]>",j,(unsigned int)*((u32*)branchfpbu+j));
+			//printf("\n <r%d:[%x]>",j,(unsigned int)*((u32*)branchfpbu+j));
 			j=0;
 		}
 
@@ -182,12 +204,12 @@ else if(testmode==1){
 
 		if ( ((ctr % (gba_branch_block_size)) == 0) && (ctr != 0)) {
 			stackfpbu=cpubackupmode((u32*)(stackfpbu),gbavirtreg_cpu,cpsrvirt); //already increases fp
-			//iprintf("b.ofset:%x \n",(unsigned int)branchfpbu);
+			//printf("b.ofset:%x \n",(unsigned int)branchfpbu);
 			//ofset+=0x1;
 		}
 	}
 
-	//iprintf("1/2 stack test fp set to: %x \n",(unsigned int)(u32*)branchfpbu);
+	//printf("1/2 stack test fp set to: %x \n",(unsigned int)(u32*)branchfpbu);
 	//flush workreg
 	for(j=0;j<0x10;j++){
 		*((u32*)(u32)&gbavirtreg_cpu+j)=0x0;
@@ -199,20 +221,20 @@ else if(testmode==1){
 
 	//debug check if 16 regs address are recv OK
 	//for(i=0;i<16;i++){
-	//	iprintf(" REG%d [%x]",i,(unsigned int)*((u32*)gbavirtreg[0]+i));
+	//	printf(" REG%d [%x]",i,(unsigned int)*((u32*)gbavirtreg[0]+i));
 	//}
 
 	for(ctr=0;ctr<((int)(size) - (0x4*17));ctr++){
 
 		if ( ((ctr % (gba_branch_block_size)) == 0)) {
 			stackfpbu=cpurestoremode((u32*)(stackfpbu),gbavirtreg_cpu);
-			//iprintf("b.ofset->restore :%x \n",(unsigned int)(u32*)branchfpbu);
+			//printf("b.ofset->restore :%x \n",(unsigned int)(u32*)branchfpbu);
 			//ofset+=0x4;
 		}
 
 		//reset cnt!
 		if( (ctr % 0x10) == 0){
-			//iprintf(" <r%d:[%x]>",j,(unsigned int)gbavirtreg_cpu[j]);
+			//printf(" <r%d:[%x]>",j,(unsigned int)gbavirtreg_cpu[j]);
 			j=0;
 		}
 
@@ -222,14 +244,14 @@ else if(testmode==1){
 			else {
 				//check why if 16 regs address are recv OK
 				for(i=0;i<16;i++){
-					//iprintf(" REG%d[%x]",i,(unsigned int)gbavirtreg_cpu[i]);
+					//printf(" REG%d[%x]",i,(unsigned int)gbavirtreg_cpu[i]);
 				}
-				iprintf("\n [branchstack] STUCK AT: %x:%x",(unsigned int)(u32*)(stackfpbu+1),(unsigned int)gbavirtreg_cpu[j]);
+				printf("\n [branchstack] STUCK AT: %x:%x",(unsigned int)(u32*)(stackfpbu+1),(unsigned int)gbavirtreg_cpu[j]);
 				while(1);
 			}
 		}
 	}
-	//iprintf("2/2 stack test fp set to: %x- stack tests OK ;) \n",(u32)(u32*)branchfpbu);
+	//printf("2/2 stack test fp set to: %x- stack tests OK ;) \n",(u32)(u32*)branchfpbu);
 	return stackfpbu;
 }
 
@@ -243,7 +265,7 @@ u32 * updatestackfp(u32 * currstack_fp, u32 * stackbase){
 	stacksz=getphystacksz(stackbase);
 	
 	//debug
-	//iprintf("\n stkfp_curr:%x->offset%x",(unsigned int)(u32*)currstack_fp,(int)((unsigned int)(u32*)currstack_fp-(u32)(u32*)stackbase));
+	//printf("\n stkfp_curr:%x->offset%x",(unsigned int)(u32*)currstack_fp,(int)((unsigned int)(u32*)currstack_fp-(u32)(u32*)stackbase));
 	
 	//if framepointer is OK
 	if ( 	((int)((u32)(u32*)currstack_fp-(u32)(u32*)stackbase) >= 0) //MUST start from zero as ptr starts from zero
@@ -251,18 +273,18 @@ u32 * updatestackfp(u32 * currstack_fp, u32 * stackbase){
 			((int)((u32)(u32*)currstack_fp-(u32)(u32*)stackbase) < stacksz)
 	){
 		//debug
-		//iprintf("stack top: %x / stack_offset:%x \n",stacksz , (int)((unsigned int)(u32*)currstack_fp-(unsigned int)(u32*)stackbase));
+		//printf("stack top: %x / stack_offset:%x \n",stacksz , (int)((unsigned int)(u32*)currstack_fp-(unsigned int)(u32*)stackbase));
 		return currstack_fp;
 	}
 	//if overflow stack, fix pointer and make it try again
 	else if( ((int)(((u32)(u32*)currstack_fp-(u32)(u32*)stackbase))+0x4) >= stacksz) {
-		//iprintf("stacktop!\n");			//debug
+		//printf("stacktop!\n");			//debug
 		gbastckfpadr_curr=currstack_fp-1; 
 		return 0;
 	}
 	//else if underflow stack, fix pointer and make it try again
 	else if (  (int)((u32*)currstack_fp-(u32)(u32*)stackbase) < (int)0){
-		//iprintf("stack underflow!\n");	//debug
+		//printf("stack underflow!\n");	//debug
 		gbastckfpadr_curr=currstack_fp+1;
 		return 0;
 	}
@@ -363,31 +385,6 @@ int VolumeFromString(const char * volumestring) {
 	return total;
 }
 
-//unzip //returns size in bytes if succeded.
-int unzip(char * filename, void * outbuf, uLong outbufsz){
-	int unzoutput=UNZ_ERRNO;
-	unzFile unzstat = unzOpen(filename);
-	if (unzstat==NULL){
-		printf("bad filename[%s]",filename);
-		return -1;
-	}
-	//struct for global info
-	unz_global_info global_info;
-	if((unzoutput=(unzGetGlobalInfo( unzstat, &global_info ))) != UNZ_OK){
-		return unzoutput;
-	}
-	//struct for file info
-	unz_file_info file_info;
-	unzGetCurrentFileInfo(unzstat,&file_info,filename,MAX_FILENAME_LENGTH,NULL, 0, NULL, 0);
-	if((unzoutput=(unzOpenCurrentFile(unzstat))) != UNZ_OK){
-		return unzoutput;
-	}
-	else {
-		unzoutput=unzReadCurrentFile(unzstat,outbuf,outbufsz);
-		unzClose( unzstat );
-	}
-return unzoutput;
-}
 
 void initmemory(struct GBASystem *gba){
 	//coto
@@ -422,9 +419,9 @@ void initmemory(struct GBASystem *gba){
 	gba->vidram=(u8 *)0x06000000+(0x20000*vramofs); //OAM - OBJ Attributes      (1 Kbyte)
 
 	if(((u8*)gba->vidram)!=NULL)
-		iprintf("\n VRAM: OK :[%x]!",(unsigned int)(u8*)gba->vidram); 
+		printf("\n VRAM: OK :[%x]!",(unsigned int)(u8*)gba->vidram); 
 	else{
-		iprintf("\n VRAM FAIL! @:%x",(unsigned int)(u8*)gba->vidram);
+		printf("\n VRAM FAIL! @:%x",(unsigned int)(u8*)gba->vidram);
 		while(1);
 	}
 
@@ -432,9 +429,9 @@ void initmemory(struct GBASystem *gba){
 	
 	ramtestsz=wramtstasm((int)gba->workram,256*1024);
 	if(ramtestsz==alignw(256*1024))
-		iprintf("\n GBAWRAM tst: OK :[%x]!",(unsigned int)(u8*)gba->workram); 
+		printf("\n GBAWRAM tst: OK :[%x]!",(unsigned int)(u8*)gba->workram); 
 	else{
-		iprintf("\n FAILED ALLOCING GBAEWRAM[%x]:@%d (bytes: %d)",(unsigned int)(u8*)gbawram,ramtestsz,0x10000);
+		printf("\n FAILED ALLOCING GBAEWRAM[%x]:@%d (bytes: %d)",(unsigned int)(u8*)gbawram,ramtestsz,0x10000);
 		while(1);
 	}
 	memset((void*)gba->workram,0x0,0x10000);
@@ -442,50 +439,50 @@ void initmemory(struct GBASystem *gba){
 	//OK
 	ramtestsz=wramtstasm((int)gba->iomem,0x400);
 	if(ramtestsz==alignw(0x400))
-		iprintf("\n IOMEM tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->iomem,ramtestsz);
+		printf("\n IOMEM tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->iomem,ramtestsz);
 	else 
-		iprintf("\n IOMEM tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->iomem,ramtestsz);
+		printf("\n IOMEM tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->iomem,ramtestsz);
 	memset((void*)gba->iomem,0x0,0x400);
 
 
 	//this is OK
 	ramtestsz=wramtstasm((int)gba->bios,0x4000);
 	if(ramtestsz==alignw(0x4000))
-		iprintf("\n BIOS tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->bios,ramtestsz);
+		printf("\n BIOS tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->bios,ramtestsz);
 	else 
-		iprintf("\n BIOS tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->bios,ramtestsz);
+		printf("\n BIOS tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->bios,ramtestsz);
 	memset((void*)gba->bios,0x0,0x4000);
 
 	//this is OK
 	ramtestsz=wramtstasm((int)gba->intram,0x8000);
 	if(ramtestsz==alignw(0x8000))
-		iprintf("\n IRAM tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->intram,ramtestsz);
+		printf("\n IRAM tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->intram,ramtestsz);
 	else 
-		iprintf("\n IRAM tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->intram,ramtestsz);
+		printf("\n IRAM tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->intram,ramtestsz);
 	memset((void*)gba->intram,0x0,0x8000);
 
 	//this is OK
 	ramtestsz=wramtstasm((int)(u8*)gba->palram,0x400);
 	if(ramtestsz==alignw(0x400))
-		iprintf("\n PaletteRAM tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->palram,ramtestsz);
+		printf("\n PaletteRAM tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->palram,ramtestsz);
 	else 
-		iprintf("\n PaletteRAM tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->palram,ramtestsz);
+		printf("\n PaletteRAM tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->palram,ramtestsz);
 	memset((void*)gba->palram,0x0,0x400);
 
 	//this is OK
 	ramtestsz=wramtstasm((int)gba->oam,0x400);
 	if(ramtestsz==alignw(0x400))
-		iprintf("\n OAM tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->oam,ramtestsz);
+		printf("\n OAM tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->oam,ramtestsz);
 	else 
-		iprintf("\n OAM tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->oam,ramtestsz);
+		printf("\n OAM tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)gba->oam,ramtestsz);
 	memset((void*)gba->oam,0x0,0x400);
 
 	//this is OK
 	ramtestsz=wramtstasm((int)&gba->caioMem[0x0],0x400);
 	if(ramtestsz==alignw(0x400))
-		iprintf("\n caioMem tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)&gba->caioMem[0x0],ramtestsz);
+		printf("\n caioMem tst: OK (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)&gba->caioMem[0x0],ramtestsz);
 	else 
-		iprintf("\n caioMem tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)&gba->caioMem[0x0],ramtestsz);
+		printf("\n caioMem tst: FAIL at (%d bytes @ 0x%x+0x%x)",ramtestsz,(unsigned int)(u8 *)&gba->caioMem[0x0],ramtestsz);
 	memset((void*)&gba->caioMem[0x0],0x0,0x400);
 
 	//gba stack test
@@ -493,12 +490,12 @@ void initmemory(struct GBASystem *gba){
 		
 		u16store((u32)&gbastck_usr[0],(i*2),0xc070+i);	//gbastack[i] = 0xc070;	
 		
-		//iprintf("%x \n",(unsigned int)gbastack[i]); //iprintf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory 
+		//printf("%x \n",(unsigned int)gbastack[i]); //printf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory 
 
 		if(u16read((u32)&gbastck_usr[0],i*2)!=0xc070+i){
-			iprintf("stackusr:failed writing @ %x \n",(unsigned int)&gbastck_usr+(i*2));
-			iprintf("stackusr:reads: %x",(unsigned int)u16read((u32)&gbastck_usr[0],i*2));
-			iprintf("stackusr:base: %x",(unsigned int)&gbastck_usr[0]);
+			printf("stackusr:failed writing @ %x \n",(unsigned int)&gbastck_usr+(i*2));
+			printf("stackusr:reads: %x",(unsigned int)u16read((u32)&gbastck_usr[0],i*2));
+			printf("stackusr:base: %x",(unsigned int)&gbastck_usr[0]);
 			while(1);
 		}
 	
@@ -507,10 +504,10 @@ void initmemory(struct GBASystem *gba){
 
 	for(i=0;i<sizeof(gbastck_fiq)/2;i++){
 		u16store((u32)&gbastck_fiq[0],i*2,0xc070+i); //gbastack[i] = 0xc070;
-		//iprintf("%x \n",(unsigned int)gbastack[i]); //iprintf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory 
+		//printf("%x \n",(unsigned int)gbastack[i]); //printf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory 
 
 		if(u16read((u32)&gbastck_fiq[0],i*2)!=0xc070+i){
-			iprintf("stackfiq:failed writing @ %x \n",(unsigned int)&gbastck_fiq+(i*2));
+			printf("stackfiq:failed writing @ %x \n",(unsigned int)&gbastck_fiq+(i*2));
 			while(1);
 		}
 	
@@ -519,10 +516,10 @@ void initmemory(struct GBASystem *gba){
 
 	for(i=0;i<sizeof(gbastck_irq)/2;i++){
 		u16store((u32)&gbastck_irq[0],i*2,0xc070+i); //gbastack[i] = 0xc070;
-		//iprintf("%x \n",(unsigned int)gbastack[i]); //iprintf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory 
+		//printf("%x \n",(unsigned int)gbastack[i]); //printf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory 
 
 		if(u16read((u32)&gbastck_irq[0],i*2)!=0xc070+i){
-			iprintf("stackirq:failed writing @ %x \n",(unsigned int)&gbastck_irq+(i*2));
+			printf("stackirq:failed writing @ %x \n",(unsigned int)&gbastck_irq+(i*2));
 			while(1);
 		}
 	
@@ -531,10 +528,10 @@ void initmemory(struct GBASystem *gba){
 
 	for(i=0;i<sizeof(gbastck_svc)/2;i++){
 		u16store((u32)&gbastck_svc[0],i*2,0xc070+i); //gbastack[i] = 0xc070;				
-		//iprintf("%x \n",(unsigned int)gbastack[i]); //iprintf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory 
+		//printf("%x \n",(unsigned int)gbastack[i]); //printf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory 
 
 		if(u16read((u32)&gbastck_svc[0],i*2)!=0xc070+i){
-			iprintf("stacksvc:failed writing @ %x \n",(unsigned int)&gbastck_svc+(i*2));
+			printf("stacksvc:failed writing @ %x \n",(unsigned int)&gbastck_svc+(i*2));
 			while(1);
 		}
 	
@@ -543,10 +540,10 @@ void initmemory(struct GBASystem *gba){
 
 	for(i=0;i<sizeof(gbastck_abt)/2;i++){
 		u16store((u32)&gbastck_abt[0],i*2,0xc070+i); //gbastack[i] = 0xc070;				
-		//iprintf("%x \n",(unsigned int)gbastack[i]); //iprintf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory 
+		//printf("%x \n",(unsigned int)gbastack[i]); //printf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory 
 
 		if(u16read((u32)&gbastck_abt[0],i*2)!=0xc070+i){
-			iprintf("stackabt:failed writing @ %x \n",(unsigned int)&gbastck_abt+(i*2));
+			printf("stackabt:failed writing @ %x \n",(unsigned int)&gbastck_abt+(i*2));
 			while(1);
 		}
 	
@@ -555,10 +552,10 @@ void initmemory(struct GBASystem *gba){
 
 	for(i=0;i<sizeof(gbastck_und)/2;i++){
 		u16store((u32)&gbastck_und[0],i*2,0xc070+i); //gbastack[i] = 0xc070;				
-		//iprintf("%x \n",(unsigned int)gbastack[i]); //iprintf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory
+		//printf("%x \n",(unsigned int)gbastack[i]); //printf("%x \n",(unsigned int)**(&gbastack+i*2)); //non contiguous memory
 
 		if(u16read((u32)&gbastck_und[0],i*2)!=0xc070+i){
-			iprintf("stackund:failed writing @ %x \n",(unsigned int)&gbastck_und+(i*2));
+			printf("stackund:failed writing @ %x \n",(unsigned int)&gbastck_und+(i*2));
 			while(1);
 		}
 	
@@ -614,7 +611,7 @@ External Memory (Game Pak)
 */
 
 initmemory(gba); //healthy OK
-iprintf("init&teststacks OK");
+printf("init&teststacks OK");
 
 //GBA address MAP setup
 //gbamap set format-> struct map[index].address[(u8*)address] <- (u8*)(u32)&gba.dummysrc
@@ -659,97 +656,97 @@ for(i = 0x304; i < 0x400; i++)
     gba->ioreadable[i] = false;
 
 //vba core init
-gba->DISPCNT  = 0x0080;
-gba->DISPSTAT = 0x0000;
+gba->GBADISPCNT  = 0x0080;
+gba->GBADISPSTAT = 0x0000;
 
 #ifdef NOBIOS
-	gba->VCOUNT   =  0 ;
+	gba->GBAVCOUNT   =  0 ;
 #else
-	gba->VCOUNT 	=  0x007E;
+	gba->GBAVCOUNT 	=  0x007E;
 #endif
 
-gba->BG0CNT   = 0x0000;
-gba->BG1CNT   = 0x0000;
-gba->BG2CNT   = 0x0000;
-gba->BG3CNT   = 0x0000;
-gba->BG0HOFS  = 0x0000;
-gba->BG0VOFS  = 0x0000;
-gba->BG1HOFS  = 0x0000;
-gba->BG1VOFS  = 0x0000;
-gba->BG2HOFS  = 0x0000;
-gba->BG2VOFS  = 0x0000;
-gba->BG3HOFS  = 0x0000;
-gba->BG3VOFS  = 0x0000;
-gba->BG2PA    = 0x0100;
-gba->BG2PB    = 0x0000;
-gba->BG2PC    = 0x0000;
-gba->BG2PD    = 0x0100;
-gba->BG2X_L   = 0x0000;
-gba->BG2X_H   = 0x0000;
-gba->BG2Y_L   = 0x0000;
-gba->BG2Y_H   = 0x0000;
-gba->BG3PA    = 0x0100;
-gba->BG3PB    = 0x0000;
-gba->BG3PC    = 0x0000;
-gba->BG3PD    = 0x0100;
-gba->BG3X_L   = 0x0000;
-gba->BG3X_H   = 0x0000;
-gba->BG3Y_L   = 0x0000;
-gba->BG3Y_H   = 0x0000;
-gba->WIN0H    = 0x0000;
-gba->WIN1H    = 0x0000;
-gba->WIN0V    = 0x0000;
-gba->WIN1V    = 0x0000;
-gba->WININ    = 0x0000;
-gba->WINOUT   = 0x0000;
-gba->MOSAIC   = 0x0000;
-gba->BLDMOD   = 0x0000;
-gba->COLEV    = 0x0000;
-gba->COLY     = 0x0000;
-gba->DM0SAD_L = 0x0000;
-gba->DM0SAD_H = 0x0000;
-gba->DM0DAD_L = 0x0000;
-gba->DM0DAD_H = 0x0000;
-gba->DM0CNT_L = 0x0000;
-gba->DM0CNT_H = 0x0000;
-gba->DM1SAD_L = 0x0000;
-gba->DM1SAD_H = 0x0000;
-gba->DM1DAD_L = 0x0000;
-gba->DM1DAD_H = 0x0000;
-gba->DM1CNT_L = 0x0000;
-gba->DM1CNT_H = 0x0000;
-gba->DM2SAD_L = 0x0000;
-gba->DM2SAD_H = 0x0000;
-gba->DM2DAD_L = 0x0000;
-gba->DM2DAD_H = 0x0000;
-gba->DM2CNT_L = 0x0000;
-gba->DM2CNT_H = 0x0000;
-gba->DM3SAD_L = 0x0000;
-gba->DM3SAD_H = 0x0000;
-gba->DM3DAD_L = 0x0000;
-gba->DM3DAD_H = 0x0000;
-gba->DM3CNT_L = 0x0000;
-gba->DM3CNT_H = 0x0000;
-gba->TM0D     = 0x0000;
-gba->TM0CNT   = 0x0000;
-gba->TM1D     = 0x0000;
-gba->TM1CNT   = 0x0000;
-gba->TM2D     = 0x0000;
-gba->TM2CNT   = 0x0000;
-gba->TM3D     = 0x0000;
-gba->TM3CNT   = 0x0000;
-gba->P1       = 0x03FF;
+gba->GBABG0CNT   = 0x0000;
+gba->GBABG1CNT   = 0x0000;
+gba->GBABG2CNT   = 0x0000;
+gba->GBABG3CNT   = 0x0000;
+gba->GBABG0HOFS  = 0x0000;
+gba->GBABG0VOFS  = 0x0000;
+gba->GBABG1HOFS  = 0x0000;
+gba->GBABG1VOFS  = 0x0000;
+gba->GBABG2HOFS  = 0x0000;
+gba->GBABG2VOFS  = 0x0000;
+gba->GBABG3HOFS  = 0x0000;
+gba->GBABG3VOFS  = 0x0000;
+gba->GBABG2PA    = 0x0100;
+gba->GBABG2PB    = 0x0000;
+gba->GBABG2PC    = 0x0000;
+gba->GBABG2PD    = 0x0100;
+gba->GBABG2X_L   = 0x0000;
+gba->GBABG2X_H   = 0x0000;
+gba->GBABG2Y_L   = 0x0000;
+gba->GBABG2Y_H   = 0x0000;
+gba->GBABG3PA    = 0x0100;
+gba->GBABG3PB    = 0x0000;
+gba->GBABG3PC    = 0x0000;
+gba->GBABG3PD    = 0x0100;
+gba->GBABG3X_L   = 0x0000;
+gba->GBABG3X_H   = 0x0000;
+gba->GBABG3Y_L   = 0x0000;
+gba->GBABG3Y_H   = 0x0000;
+gba->GBAWIN0H    = 0x0000;
+gba->GBAWIN1H    = 0x0000;
+gba->GBAWIN0V    = 0x0000;
+gba->GBAWIN1V    = 0x0000;
+gba->GBAWININ    = 0x0000;
+gba->GBAWINOUT   = 0x0000;
+gba->GBAMOSAIC   = 0x0000;
+gba->GBABLDMOD   = 0x0000;
+gba->GBACOLEV    = 0x0000;
+gba->GBACOLY     = 0x0000;
+gba->GBADM0SAD_L = 0x0000;
+gba->GBADM0SAD_H = 0x0000;
+gba->GBADM0DAD_L = 0x0000;
+gba->GBADM0DAD_H = 0x0000;
+gba->GBADM0CNT_L = 0x0000;
+gba->GBADM0CNT_H = 0x0000;
+gba->GBADM1SAD_L = 0x0000;
+gba->GBADM1SAD_H = 0x0000;
+gba->GBADM1DAD_L = 0x0000;
+gba->GBADM1DAD_H = 0x0000;
+gba->GBADM1CNT_L = 0x0000;
+gba->GBADM1CNT_H = 0x0000;
+gba->GBADM2SAD_L = 0x0000;
+gba->GBADM2SAD_H = 0x0000;
+gba->GBADM2DAD_L = 0x0000;
+gba->GBADM2DAD_H = 0x0000;
+gba->GBADM2CNT_L = 0x0000;
+gba->GBADM2CNT_H = 0x0000;
+gba->GBADM3SAD_L = 0x0000;
+gba->GBADM3SAD_H = 0x0000;
+gba->GBADM3DAD_L = 0x0000;
+gba->GBADM3DAD_H = 0x0000;
+gba->GBADM3CNT_L = 0x0000;
+gba->GBADM3CNT_H = 0x0000;
+gba->GBATM0D     = 0x0000;
+gba->GBATM0CNT   = 0x0000;
+gba->GBATM1D     = 0x0000;
+gba->GBATM1CNT   = 0x0000;
+gba->GBATM2D     = 0x0000;
+gba->GBATM2CNT   = 0x0000;
+gba->GBATM3D     = 0x0000;
+gba->GBATM3CNT   = 0x0000;
+gba->GBAP1       = 0x03FF;
 gbavirt_iemasking=0x0000;			//  gba->IE       = 0x0000;
 gbavirt_ifmasking=0x0000;			//  gba->IF       = 0x0000;
 gbavirt_imemasking=0x0000;			// gba->IME      = 0x0000;
 
-cpu_updateregisters(0x00, gba->DISPCNT);	//UPDATE_REG(0x00, gba->DISPCNT);
-cpu_updateregisters(0x06, gba->VCOUNT);	//UPDATE_REG(0x06, gba->VCOUNT);
-cpu_updateregisters(0x20, gba->BG2PA);		//UPDATE_REG(0x20, gba->BG2PA);
-cpu_updateregisters(0x26, gba->BG2PD);		//UPDATE_REG(0x26, gba->BG2PD);
-cpu_updateregisters(0x30, gba->BG3PA);		//UPDATE_REG(0x30, gba->BG3PA);
-cpu_updateregisters(0x36, gba->BG3PD);		//UPDATE_REG(0x36, gba->BG3PD);
-cpu_updateregisters(0x130, gba->P1);		//UPDATE_REG(0x130, gba->P1);
+cpu_updateregisters(0x00, gba->GBADISPCNT);	//UPDATE_REG(0x00, gba->GBADISPCNT);
+cpu_updateregisters(0x06, gba->GBAVCOUNT);	//UPDATE_REG(0x06, gba->VCOUNT);
+cpu_updateregisters(0x20, gba->GBABG2PA);		//UPDATE_REG(0x20, gba->BG2PA);
+cpu_updateregisters(0x26, gba->GBABG2PD);		//UPDATE_REG(0x26, gba->BG2PD);
+cpu_updateregisters(0x30, gba->GBABG3PA);		//UPDATE_REG(0x30, gba->BG3PA);
+cpu_updateregisters(0x36, gba->GBABG3PD);		//UPDATE_REG(0x36, gba->BG3PD);
+cpu_updateregisters(0x130, gba->GBAP1);		//UPDATE_REG(0x130, gba->P1);
 cpu_updateregisters(0x88, 0x200);			//UPDATE_REG(0x88, 0x200);
 
 #ifndef NOBIOS
@@ -786,7 +783,7 @@ gba->fxon = false;
 gba->windowon = false;
 gba->framecount = 0;
 gba->savetype = 0;
-gba->layerenable = gba->DISPCNT & gba->layersettings;
+gba->layerenable = gba->GBADISPCNT & gba->layersettings;
 
 //OK so far
 gba->map[0].address = gba->bios;
@@ -850,9 +847,9 @@ gbavirtreg_cpu[0xd]=gbavirtreg_r13usr[0]=(u32)(u32*)gbastckadr_usr;
 gbastckfp_usr=(u32*)0x03007F00;
 #ifdef STACKTEST
 	if((int)stack_test(gbastckadr_usr,0xff,0x0)==(int)0xff)
-		iprintf("USR stack OK!");
+		printf("USR stack OK!");
 	else
-		iprintf("USR stack WRONG!");
+		printf("USR stack WRONG!");
 #endif
 
 gbastckadr_fiq=(u32*)(gbastckadr_usr-GBASTACKSIZE); //custom fiq stack
@@ -861,9 +858,9 @@ gbavirtreg_r13fiq[0]=(u32)(u32*)gbastckadr_fiq;
 gbastckfp_fiq=(u32*)(gbastckadr_usr-GBASTACKSIZE); //#GBASTACKSIZE size
 #ifdef STACKTEST
 	if((int)stack_test(gbastckadr_fiq,(int)GBASTACKSIZE,0x0)==(int)GBASTACKSIZE)
-		iprintf("FIQ stack OK!");
+		printf("FIQ stack OK!");
 	else
-		iprintf("FIQ stack WRONG!");
+		printf("FIQ stack WRONG!");
 #endif
 
 gbastckadr_irq=(u32*)0x03007FA0;
@@ -872,9 +869,9 @@ gbavirtreg_r13irq[0]=(u32)(u32*)gbastckadr_irq;
 gbastckfp_irq=(u32*)0x03007FA0;
 #ifdef STACKTEST
 	if((int)stack_test(gbastckadr_irq,0xff,0x0)==(int)0xff)
-		iprintf("IRQ stack OK!");
+		printf("IRQ stack OK!");
 	else
-		iprintf("IRQ stack WRONG!");
+		printf("IRQ stack WRONG!");
 #endif
 
 gbastckadr_svc=(u32*)0x03007FE0;
@@ -883,9 +880,9 @@ gbavirtreg_r13svc[0]=(u32)(u32*)gbastckadr_svc;
 gbastckfp_svc=(u32*)0x03007FE0;
 #ifdef STACKTEST
 	if((int)stack_test(gbastckadr_svc,0xff,0x0)==(int)0xff)
-		iprintf("SVC stack OK!");
+		printf("SVC stack OK!");
 	else
-		iprintf("SVC stack WRONG!");
+		printf("SVC stack WRONG!");
 #endif
 
 gbastckadr_abt=(u32*)(gbastckadr_fiq-GBASTACKSIZE); //custom abt stack
@@ -894,9 +891,9 @@ gbavirtreg_r13abt[0]=(u32)(u32*)gbastckadr_abt;
 gbastckfp_abt=(u32*)(gbastckadr_fiq-GBASTACKSIZE);
 #ifdef STACKTEST
 	if((int)stack_test(gbastckadr_abt,(int)GBASTACKSIZE,0x0)==(int)GBASTACKSIZE)
-		iprintf("ABT stack OK!");
+		printf("ABT stack OK!");
 	else
-		iprintf("ABT stack WRONG!");
+		printf("ABT stack WRONG!");
 #endif
 
 gbastckadr_und=(u32*)(gbastckadr_abt-GBASTACKSIZE); //custom und stack
@@ -905,9 +902,9 @@ gbavirtreg_r13und[0]=(u32)(u32*)gbastckadr_und;
 gbastckfp_und=(u32*)(gbastckadr_abt-GBASTACKSIZE);
 #ifdef STACKTEST
 	if((int)stack_test(gbastckadr_und,(int)GBASTACKSIZE,0x0)==(int)GBASTACKSIZE)
-		iprintf("UND stack OK!");
+		printf("UND stack OK!");
 	else
-		iprintf("UND stack WRONG!");
+		printf("UND stack WRONG!");
 #endif
 
 /*
@@ -919,7 +916,7 @@ call_adrstack[0x1]=(u32)0xc0707357;
 call_adrstack[0x2]=(u32)&dummycall;
 call_adrstack[0x3]=(u32)&emulatorgba;	//slot 3 is for branching (and requires arguments passed so branch opcodes can set bit 0 to run thumb/arm mode)
 
-//iprintf("branchstack OK & branchstackadrfp->:%x \n", (unsigned int)set_adr_stacks()); 
+//printf("branchstack OK & branchstackadrfp->:%x \n", (unsigned int)set_adr_stacks()); 
 */
 
 }
@@ -927,32 +924,32 @@ call_adrstack[0x3]=(u32)&emulatorgba;	//slot 3 is for branching (and requires ar
 
 int utilload(const char *file,u8 *data,int size,bool extram){ //*file is filename (.gba)
 																//*data is pointer to store rom  / always ~256KB &size at load
-//iprintf("ewram top: %x \n", (unsigned int)(((int)&__ewram_end) - 0x1));
+//printf("ewram top: %x \n", (unsigned int)(((int)&__ewram_end) - 0x1));
 //while(1);
 #ifndef NOBIOS
 //bios copy to biosram
 FILE *f = fopen("gba.bios", "r");
 if(!f){ 
-	iprintf("there is no gba.bios in root!"); while(1);
+	printf("there is no gba.bios in root!"); while(1);
 }
 
 int fileSize=fread((void*)(u8*)gba.bios, 1, 0x4000,f);
 
 fclose(f);
 if(fileSize!=0x4000){
-	iprintf("failed gba.bios copy @ %x! so far:%d bytes",(unsigned int)gba.bios,fileSize);
+	printf("failed gba.bios copy @ %x! so far:%d bytes",(unsigned int)gba.bios,fileSize);
 	while(1);
 	}
 else
-	//iprintf("bios OK!");
+	//printf("bios OK!");
 	/*
 		// tempbuffer2 
-		iprintf("\n /// GBABIOS @ %x //",(unsigned int)(u8*)gba.bios);
+		printf("\n /// GBABIOS @ %x //",(unsigned int)(u8*)gba.bios);
 			
 		for(i=0;i<16;i++){
-			iprintf(" %x:[%d] ",i,(unsigned int)*((u32*)gbabios+i));
+			printf(" %x:[%d] ",i,(unsigned int)*((u32*)gbabios+i));
 			
-			if (i==15) iprintf("\n");
+			if (i==15) printf("\n");
 			
 		}
 		while(1);
@@ -965,7 +962,7 @@ FILE *f;
 //gbarom setup
 f = fopen(file, "rb");
 if(!f) {
-	iprintf("Error opening image %s",file);
+	printf("Error opening image %s",file);
 	return 0;
 }
 
@@ -979,16 +976,16 @@ fread((char*)&gbaheader, 1, sizeof(gbaheader),f);
 //size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
 int temp = fread((void*)gbaheaderbuf,sizeof(gbaheaderbuf[0]),0x200,f);
 if (temp != 0x200){
-	iprintf("\n error ret. gbaheader (size rd: %d)",temp);
+	printf("\n error ret. gbaheader (size rd: %d)",temp);
 	while(1);
 }
 
-//iprintf("\n util.c filesize: %d ",fileSize);
-//iprintf("\n util.c entrypoint: %x ",(unsigned int)0x08000000 + ((&gbaheader)->entryPoint & 0x00FFFFFF)*4 + 8);
+//printf("\n util.c filesize: %d ",fileSize);
+//printf("\n util.c entrypoint: %x ",(unsigned int)0x08000000 + ((&gbaheader)->entryPoint & 0x00FFFFFF)*4 + 8);
 
 */
 
-generate_filemap(fileSize);
+generatefilemap(f,fileSize);
 
 if(data == 0){ //null rom destination pointer? allocate space for it	
 	/*8K for futur alloc 0x2000 unused*/
@@ -1004,12 +1001,12 @@ if(data == 0){ //null rom destination pointer? allocate space for it
 	//set rom address
 	rom=(u32)0x08000000;	
 	
-	//iprintf("entrypoint @ %x! ",(unsigned int)(u32*)rom_entrypoint);
+	//printf("entrypoint @ %x! ",(unsigned int)(u32*)rom_entrypoint);
 }
 
 fclose(f);
 
-iprintf("generated filemap! OK:\n");
+printf("generated filemap! OK:\n");
 
 return gba.romsize; //rom buffer size
 }
@@ -1030,7 +1027,7 @@ if(gba->cpuismultiboot) whereToLoad = gba->workram;
 
 gba->romsize = utilload(filename,whereToLoad,gba->romsize,extram);
 if(gba->romsize==0){ //set ups u8 * rom to point to allocated buffer and returns *partial* or full romSize
-	iprintf("error retrieving romSize \n");
+	printf("error retrieving romSize \n");
 return 0;
 }
 

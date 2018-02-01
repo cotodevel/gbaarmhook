@@ -41,10 +41,10 @@
 	.text
 	.arm
 
-	.global	mpu_setup			@__libnds_mpu_setup
-	.type	mpu_setup STT_FUNC
+	.global	__libnds_mpu_setup
+	.type	__libnds_mpu_setup STT_FUNC
 @---------------------------------------------------------------------------------
-mpu_setup:
+__libnds_mpu_setup:
 @---------------------------------------------------------------------------------
 @ turn the power on for M3
 @---------------------------------------------------------------------------------
@@ -67,9 +67,9 @@ mpu_setup:
 	@ Wait for write buffer to empty 
 	mcr	p15, 0, r0, c7, c10, 4
 
-	ldr	r0, =__dtcm_start
+	ldr	r0, =_dtcm_start
 	orr	r0,r0,#0x0a
-	mcr	p15, 0, r0, c9, c1,0		@ DTCM base = __dtcm_start, size = 16 KB
+	mcr	p15, 0, r0, c9, c1,0		@ DTCM base = _dtcm_start, size = 16 KB
 
 	mov	r0,#0x20
 	mcr	p15, 0, r0, c9, c1,1		@ ITCM base = 0 , size = 32 MB
@@ -99,14 +99,14 @@ mpu_setup:
 	@-------------------------------------------------------------------------
 	@ Region 5 - DTCM
 	@-------------------------------------------------------------------------
-	ldr	r0,=__dtcm_start
+	ldr	r0,=_dtcm_start
 	orr	r0,r0,#(PAGE_16K | 1)
 	mcr	p15, 0, r0, c6, c5, 0
 
 	@-------------------------------------------------------------------------
 	@ Region 4 - ITCM
 	@-------------------------------------------------------------------------
-	ldr	r0,=__itcm_start
+	ldr	r0,=_itcm_start
 
 	@ align to 32k boundary
 	mov	r0,r0,lsr #15
@@ -187,7 +187,7 @@ setregions:
 	@-------------------------------------------------------------------------
 	@ DAccess
 	@-------------------------------------------------------------------------
-	mcr	p15, 0, r0, c5, c0, 2
+	mcr     p15, 0, r0, c5, c0, 2
 
 	@-------------------------------------------------------------------------
 	@ Enable ICache, DCache, ITCM & DTCM
@@ -199,7 +199,7 @@ setregions:
 
 	ldr	r0,=masks
 	str	r9,[r0]
-	
+
 	bx	lr
 
 dsmasks:
@@ -211,23 +211,23 @@ dsimasks:
 
 masks:	.word	dsmasks
 
-@	.global memCached
-@	.type	memCached STT_FUNC
-@memCached:
-@	ldr	r1,masks
-@	ldr	r2,[r1],#4
-@	and	r0,r0,r2
-@	ldr	r2,[r1]
-@	orr	r0,r0,r2
-@	bx	lr
+	.global memCached
+	.type	memCached STT_FUNC
+memCached:
+	ldr	r1,masks
+	ldr	r2,[r1],#4
+	and	r0,r0,r2
+	ldr	r2,[r1]
+	orr	r0,r0,r2
+	bx	lr
 
-@	.global	memUncached
-@	.type	memUncached STT_FUNC
-@memUncached:
-@	ldr	r1,masks
-@	ldr	r2,[r1],#8
-@	and	r0,r0,r2
-@	ldr	r2,[r1]
-@	orr	r0,r0,r2
-@	bx	lr
+	.global	memUncached
+	.type	memUncached STT_FUNC
+memUncached:
+	ldr	r1,masks
+	ldr	r2,[r1],#8
+	and	r0,r0,r2
+	ldr	r2,[r1]
+	orr	r0,r0,r2
+	bx	lr
 
