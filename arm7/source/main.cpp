@@ -41,7 +41,6 @@ int main(int _argc, sint8 **_argv) {
 	while (!(*((vuint8*)0x04000240) & 0x2));
 	useARM7VRAMStacks();	//change ARM7 stacks to VRAM
 	installWifiFIFO();		//use DSWIFI
-	initTGDSAudioSystem();	//Init Audio NDS7
 	
 	powerON(POWER_SOUND);
 	REG_SOUNDCNT = SOUND_ENABLE | SOUND_VOL(0x7F);
