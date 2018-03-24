@@ -104,7 +104,7 @@ endif
 
 $(EXECUTABLE_FNAME)	:	compile
 	-@echo 'ndstool begin'
-	$(NDSTOOL)	-v	-c $@	-7  $(CURDIR)/arm7/$(BINSTRIP_RULE_7)	-e7  0x03800000	-9 $(CURDIR)/arm9/$(BINSTRIP_RULE_9) -e9  0x02040000 
+	$(NDSTOOL)	-v	-c $@	-7  $(CURDIR)/arm7/$(BINSTRIP_RULE_7)	-e7  0x03800000	-9 $(CURDIR)/arm9/$(BINSTRIP_RULE_9) -e9  0x02000000
 	-@echo 'ndstool end: built: $@'
 	
 #---------------------------------------------------------------------------------
