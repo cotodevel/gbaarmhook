@@ -38,7 +38,7 @@ USA
 #include "main.h"
 
 //filesystem
-#include "fsfatlayerTGDS.h"
+#include "fsfatlayerTGDSLegacy.h"
 #include "fileHandleTGDS.h"
 #include "InterruptsARMCores_h.h"
 #include "specific_shared.h"
@@ -55,7 +55,6 @@ USA
 #include "gbaemu4ds_fat_ext.h"
 
 #include "devoptab_devices.h"
-#include "fsfatlayerTGDS.h"
 #include "usrsettingsTGDS.h"
 
 #include "videoTGDS.h"

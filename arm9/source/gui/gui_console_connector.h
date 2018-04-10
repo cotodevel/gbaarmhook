@@ -40,7 +40,7 @@ USA
 #include "dmaTGDS.h"
 
 #include "memoryHandleTGDS.h"
-#include "fsfatlayerTGDS.h"
+#include "fsfatlayerTGDSLegacy.h"
 #include "keypadTGDS.h"
 #include "videoTGDS.h"
 
