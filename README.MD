@@ -1,6 +1,6 @@
 This is the Toolchain Generic DS gbaARMHook project:
 
-Compile Toolchain: To compile this project you will need to follow the steps at https://github.com/cotodevel/ToolchainGenericDS: Then simply extract the project somewhere.
+Compile Toolchain: To compile this project you will need to follow the steps at https://bitbucket.org/Coto88/toolchaingenericds : Then simply extract the project somewhere.
 
 Compile this project: Open msys, through msys commands head to the directory your extracted this project. Then write: make clean make
 
