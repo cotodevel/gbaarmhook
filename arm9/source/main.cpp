@@ -59,7 +59,6 @@ USA
 
 #include "videoTGDS.h"
 #include "keypadTGDS.h"
-#include "guiTGDS.h"
 
 #include <string.h>
 #include <stdlib.h>

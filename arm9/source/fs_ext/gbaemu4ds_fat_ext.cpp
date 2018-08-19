@@ -12,7 +12,6 @@
 #include <sys/dir.h>
 #include <fcntl.h>
 
-#include "guiTGDS.h"
 #include "nds_cp15_misc.h"
 #include "dldi.h"
 #include "fsfatlayerTGDSLegacy.h"
