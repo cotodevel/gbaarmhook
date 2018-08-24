@@ -14,7 +14,7 @@
 
 #include "nds_cp15_misc.h"
 #include "dldi.h"
-#include "fsfatlayerTGDSLegacy.h"
+#include "fsfatlayerTGDS.h"
 #include "fileHandleTGDS.h"
 #include "InterruptsARMCores_h.h"
 #include "specific_shared.h"
