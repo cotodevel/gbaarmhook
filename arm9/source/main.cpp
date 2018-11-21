@@ -552,79 +552,80 @@ char patchpath[255 * 2];
 
 int main(int _argc, sint8 **_argv) {
 
-IRQInit();
-bool project_specific_console = false;	//set default console or custom console: default console
-GUI_init(project_specific_console);
-GUI_clear();
+	IRQInit();
+	bool project_specific_console = false;	//set default console or custom console: default console
+	GUI_init(project_specific_console);
+	GUI_clear();
 
-sint32 fwlanguage = (sint32)getLanguage();
+	sint32 fwlanguage = (sint32)getLanguage();
 
-int ret=FS_init();
-if (ret == 0)
-{
-	printf("FS Init ok.");
-}
-else if(ret == -1)
-{
-	printf("FS Init error.");
-}
-
-biospath[0] = 0;
-savepath[0] = 0;
-patchpath[0] = 0;
-
-
-// GBA EMU INIT//
-//show gbadata printf("\x1b[21;1H
-strcat(temppath,(char*)"/gba/rs-pzs.gba");
-//printgbainfo (temppath);
-
-/******************************************************** GBA EMU INIT CODE *********************************************************************/
-
-//initemu(&gba);	//OK
-//bios_cpureset();	// clears all cpuregs!
-//bios_registerramreset(0xffff); //unless byte swap reads, 0xff alone hangs the nds hw // clears all cpuregs!
-//printf("initemu(); / cpureset(); /bios_regramrst()! \n");
-
-//CPULoadRom(struct GBASystem * gba, const char *szFile,bool extram)
-//loadrom(&gba,temppath,256);		//false for extraram ////int utilLoad(struct GBASystem * gba,const char *file,u8 *data,int size,bool extram)
-//printf("loadrom();\n");
-
-
-//setup emu
-gba.cpustate=true;
-gba.cpudmahack=false;
-cputotalticks = 0; //ori: gba.cputotalticks = 0;
-gba.armirqenable=true;
-
-//bios calls (flush) destroyed sp13 for usr mode
-gbavirtreg_cpu[0xd]=gbavirtreg_r13usr[0];
-  
-//Set CPSR virtualized bits & perform USR/SYS CPU mode change. & set stacks
-updatecpuflags(1,cpsrvirt,0x10);
-
-//opengbarom
-if(isgbaopen(gbaromfile)==0)
-	printf("ready to open gbarom. ");
-if (opengbarom((const char*)getfatfsPath((char*)"gba/rs-pzs.gba"),"r+")==0){
-	//printf("GBAROM open OK!");
-	//printf("GBAROM size is (%d) bytes", (int)getfilesizegbarom());
-}
-else {
-	printf("GBAROM open ERROR. close the nds");
-	while(1);
-}
-
-//int gbaofset=0;
-//printf("gbaromread @ %x:[%x]",(unsigned int)(0x08000000+gbaofset),(unsigned int)readu32gbarom(gbaofset));
-
-// u32 PATCH_BOOTCODE();
-// u32 PATCH_START();
-// u32 PATCH_HOOK_START();
-
-//label asm patcher
+	printf("     ");
+	printf("     ");
 	
-	buf_wram[0x0]=0;
+	int ret=FS_init();
+	if (ret == 0)
+	{
+		printf("FS Init ok.");
+	}
+	else if(ret == -1)
+	{
+		printf("FS Init error.");
+	}
+
+	biospath[0] = 0;
+	savepath[0] = 0;
+	patchpath[0] = 0;
+
+	// GBA EMU INIT//
+	//show gbadata printf("\x1b[21;1H
+	strcat(temppath,(char*)"/gba/rs-pzs.gba");
+	//printgbainfo (temppath);
+
+	/******************************************************** GBA EMU INIT CODE *********************************************************************/
+
+	//initemu(&gba);	//OK
+	//bios_cpureset();	// clears all cpuregs!
+	//bios_registerramreset(0xffff); //unless byte swap reads, 0xff alone hangs the nds hw // clears all cpuregs!
+	//printf("initemu(); / cpureset(); /bios_regramrst()! \n");
+
+	//CPULoadRom(struct GBASystem * gba, const char *szFile,bool extram)
+	//loadrom(&gba,temppath,256);		//false for extraram ////int utilLoad(struct GBASystem * gba,const char *file,u8 *data,int size,bool extram)
+	//printf("loadrom();\n");
+
+
+	//setup emu
+	gba.cpustate=true;
+	gba.cpudmahack=false;
+	cputotalticks = 0; //ori: gba.cputotalticks = 0;
+	gba.armirqenable=true;
+
+	//bios calls (flush) destroyed sp13 for usr mode
+	gbavirtreg_cpu[0xd]=gbavirtreg_r13usr[0];
+	  
+	//Set CPSR virtualized bits & perform USR/SYS CPU mode change. & set stacks
+	updatecpuflags(1,cpsrvirt,0x10);
+
+	//opengbarom
+	if(isgbaopen(gbaromfile)==0)
+		printf("ready to open gbarom. ");
+	if (opengbarom((const char*)getfatfsPath((char*)"gba/rs-pzs.gba"),"r+")==0){
+		//printf("GBAROM open OK!");
+		//printf("GBAROM size is (%d) bytes", (int)getfilesizegbarom());
+	}
+	else {
+		printf("GBAROM open ERROR. close the nds");
+		while(1);
+	}
+
+	//int gbaofset=0;
+	//printf("gbaromread @ %x:[%x]",(unsigned int)(0x08000000+gbaofset),(unsigned int)readu32gbarom(gbaofset));
+
+	// u32 PATCH_BOOTCODE();
+	// u32 PATCH_START();
+	// u32 PATCH_HOOK_START();
+
+	//label asm patcher
+	uint8 * buf_wram = (uint8 *)malloc(1*1024*1024);
 	
 	u32 * PATCH_BOOTCODE_PTR =((u32*)&PATCH_BOOTCODE);
 	u32 * PATCH_START_PTR =((u32*)&PATCH_START);
@@ -689,6 +690,7 @@ else {
 
 	while (1)
 	{
+		scanKeys();
 		if (keysPressed() & KEY_A){
 			printf("test:%d",rand()&0xff);
 		}

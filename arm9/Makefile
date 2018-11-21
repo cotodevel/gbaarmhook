@@ -26,18 +26,18 @@ DIRLIBS_SRC = $(foreach dirres,$(DIRS_ARM9_SRC),-I "$(CURDIR)/$(RELATIVE_PATH)/$
 
 file_arm9_src_c=  $(foreach dir,$(DIRS_ARM9_SRC), $(subst $(CURDIR)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(CURDIR)/$(RELATIVE_PATH)/$(dir)/*.c))  )
 file_arm9_src_o=  $(foreach dir,$(BUILD), $(subst $(CURDIR)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(CURDIR)/$(RELATIVE_PATH)/$(dir)/*.o))  )
+file_arm9_src_o_out = $(filter-out $(TARGET_LIBRARY_CRT0_FILE_9).o, $(file_arm9_src_o))
 file_arm9_src_s=  $(foreach dir,$(DIRS_ARM9_SRC), $(subst $(CURDIR)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(CURDIR)/$(RELATIVE_PATH)/$(dir)/*.s))  )
 file_arm9_src_SUPP=  $(foreach dir,$(DIRS_ARM9_SRC), $(subst $(CURDIR)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(CURDIR)/$(RELATIVE_PATH)/$(dir)/*.S))  )
 file_arm9_src_cpp=  $(foreach dir,$(DIRS_ARM9_SRC), $(subst $(CURDIR)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(CURDIR)/$(RELATIVE_PATH)/$(dir)/*.cpp))  )
 file_arm9_src_bin=  $(foreach dir,$(DIRS_ARM9_SRC), $(subst $(CURDIR)/$(RELATIVE_PATH)/$(dir)/,,$(wildcard $(CURDIR)/$(RELATIVE_PATH)/$(dir)/*.bin))  )
 
 # Object Target
-objs_arm9:=	${file_arm9_src_c:.c=.o}	${file_arm9_src_s:.s=.o}	${file_arm9_src_SUPP:.S=.o}	${file_arm9_src_cpp:.cpp=.o}	${file_arm9_src_bin:.bin=.o}
+objs_arm9:=		${file_arm9_src_bin:.bin=.o}	${file_arm9_src_c:.c=.o}	${file_arm9_src_s:.s=.o}	${file_arm9_src_SUPP:.S=.o}	${file_arm9_src_cpp:.cpp=.o}
 d_objs_arm9:=	${file_arm9_src_c:.c=.d}	${file_arm9_src_s:.s=.d}	${file_arm9_src_SUPP:.S=.d}	${file_arm9_src_cpp:.cpp=.d}
 
 #ARM9 specific definitions.	-fno-common so we force initialized data to rodata
 MAPFILE = $(DIR_ARM9).map
-SHARED_FLAGS	=	-mcpu=arm946e-s	-mthumb-interwork
 AS_ASFLAGS		=	$(GLOBAL_SHARED_FLAGS_9)	$(SPECIFIC_AS_COMPILER_FLAGS_9)		$(GLOBAL_AS_COMPILER_FLAGS)
 CC_ASFLAGS		=	$(GLOBAL_SHARED_FLAGS_9)	$(SPECIFIC_CXX_COMPILER_FLAGS_9)	$(GLOBAL_CC_COMPILER_FLAGS)
 CPP_FLAGS		=	$(GLOBAL_SHARED_FLAGS_9)	$(SPECIFIC_CXX_COMPILER_FLAGS_9)	$(GLOBAL_CXX_COMPILER_FLAGS)
@@ -47,30 +47,29 @@ DIR_SRC			=	$(DIRS_ARM9_SRC)
 #--gc-sections: allows relocatable sections linked (already) to be included, otherwise unused sections are discarded.
 #check arm9.map "Discarded input sections" to see --gc-sections in action.
 LDFLAGS	=	-specs=gbands_arm9_ld.specs	-Wl,--no-gc-sections,-Map,$(MAPFILE)
-LIBRARIES =	-l$(TARGET_LIBRARY_NAME_9)	-lcnano9
+LIBRARIES =	-liberty	-l$(TARGET_LIBRARY_NAME_9)	-lsupc++	-lstdc++	-lcnano9	-lgcc
 
 ################################################################################################
 
 #Dont modify anything else if not necessary ..
-OBJECTS = 	$(objs_arm9)	$(file_arm9_src_o)
+OBJECTS = 	$(objs_arm9)	$(file_arm9_src_o_out)
 OBJDIR 	=	./$(BUILD)
 VPATH 	=	$(DIR_SRC)
 OBJPROG = 	$(addprefix $(OBJDIR)/, $(ELF_ARM9))
 
 
-all: $(OBJDIR)|	$(TARGET_LIBRARY_CRT0_FILE_9).o	$(BINSTRIP_RULE_9)
+all: makebuild	$(TARGET_LIBRARY_CRT0_FILE_9).o	$(BINSTRIP_RULE_9)
 #all: debug
 
 #Check $(OBJDIR) if not exists: create it
-$(OBJDIR):
-	@echo "Folder $(OBJDIR) does not exist. Creating"
-	mkdir -p $@
+makebuild:
+	-mkdir -p $(OBJDIR)
 
 #rule for reading *.bin in /data folder, converts to .C source code, which then gets compiled as object so it can be linked later
 $(OBJDIR)/%.o : %.bin
-	-@echo 'trying to convert .BIN ($<) -> .C output: ${@:.o=.c} : arrayName: $(subst build/,,${@:.o=})'
-	$(BIN2C)	$<	${@:.o=.c}	$(subst build/,,${@:.o=})
-	$(CC)	$(CC_ASFLAGS)	$(DIRLIBS_HDR)	$(DIRLIBS_SRC)	-nostdinc	$(DIRLIBS_PROHIBITED)	-o $@ -c ${@:.o=.c}
+	-@echo 'trying to convert .BIN ($<) -> .C output: ${@:.o=_out.c} : arrayName: $(subst build/,,${@:.o=})'
+	$(BIN2C)	$<	${@:.o=_out.c}	$(subst build/,,${@:.o=})
+	$(CC)	$(CC_ASFLAGS)	$(DIRLIBS_HDR)	$(DIRLIBS_SRC)	$(DIRLIBS_PROHIBITED)	-o $@ -c ${@:.o=_out.c}
 
 #Do C Compile now!
 $(OBJDIR)/%.o : %.c
@@ -109,7 +108,7 @@ $(TARGET_LIBRARY_CRT0_FILE_9).o:	$(TARGET_LIBRARY_LINKER_FILE_9)
 #Linkage. 
 $(OBJPROG): $(addprefix $(OBJDIR)/, $(OBJECTS))
 	-@echo 'Entering Linking phase'
-	$(CC) $^ $(LDFLAGS)	$(DIRLIBS_HDR)	$(DIRLIBS_SRC)	$(DIRLIBS_SHARED)	-L	$(TARGET_LIBRARY_PATH)/	$(LIBRARIES)	-L	$(TARGET_LIBRARY_LINKER_PATH_LD)	-o $@
+	$(CC) $^	$(LDFLAGS)	$(DIRLIBS_HDR)	$(DIRLIBS_SRC)	$(DIRLIBS_SHARED)	-L	$(TARGET_LIBRARY_PATH)/	-L	$(TOOLCHAIN_PATH)/		$(LIBRARIES)	-L	$(TARGET_LIBRARY_LINKER_PATH_LD)	-o $@
 	-@echo 'Leaving Linking phase. Output: $@'
 
 #keep only binary sections from elf. --only-section

@@ -19,6 +19,8 @@ USA
 
 */
 
+//TGDS required version: IPC Version: 1.3
+
 #include "ipcfifoTGDS.h"
 #include "specific_shared.h"
 #include "dsregs.h"
@@ -45,10 +47,12 @@ USA
 
 struct gbaheader_t gbaheader;
 
+//Coto: Hardware IPC struct packed 
 struct sIPCSharedTGDSSpecific* getsIPCSharedTGDSSpecific(){
 	struct sIPCSharedTGDSSpecific* sIPCSharedTGDSSpecificInst = (__attribute__((packed)) struct sIPCSharedTGDSSpecific*)(getUserIPCAddress());
 	return sIPCSharedTGDSSpecificInst;
 }
+
 
 #ifdef ARM9
 __attribute__((section(".itcm")))
