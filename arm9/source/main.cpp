@@ -624,9 +624,7 @@ int main(int _argc, sint8 **_argv) {
 	// u32 PATCH_START();
 	// u32 PATCH_HOOK_START();
 
-	//label asm patcher
-	uint8 * buf_wram = (uint8 *)malloc(1*1024*1024);
-	
+	//label asm patcher	
 	u32 * PATCH_BOOTCODE_PTR =((u32*)&PATCH_BOOTCODE);
 	u32 * PATCH_START_PTR =((u32*)&PATCH_START);
 	u32 * PATCH_HOOK_START_PTR =((u32*)&PATCH_HOOK_START);

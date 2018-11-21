@@ -37,7 +37,9 @@ extern volatile u8 __attribute__ ((aligned (1))) gbaintram[0x8000];
 extern volatile u8 __attribute__ ((aligned (1))) gbaoam[0x400];
 extern volatile u8 __attribute__ ((aligned (1))) gbacaioMem[0x400];
 extern volatile u8 __attribute__ ((aligned (1))) iomem[0x400];
-extern volatile u8 __attribute__ ((aligned (1))) saveram[128*1024]; //128K
+extern volatile u8 __attribute__ ((aligned (1))) saveram[512*1024]; //512K
+
+extern volatile u32 buf_wram[(1024*1024)/4];
 
 //tests
 extern u32 tempbuffer[1024*1]; //1K test
