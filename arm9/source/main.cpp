@@ -70,7 +70,7 @@ USA
 #include <ctype.h>
 #include "stdint.h"
 
-#include "main.h"
+#include "dswnifi_lib.h"
 #include "settings.h"
 
 //zlib (gzip) and zip
@@ -571,6 +571,7 @@ int main(int _argc, sint8 **_argv) {
 	{
 		printf("FS Init error.");
 	}
+	//switch_dswnifi_mode(dswifi_idlemode);	//causes freezes.
 	/*			TGDS 1.5 Standard ARM9 Init code end	*/
 	
 	biospath[0] = 0;
