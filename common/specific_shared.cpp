@@ -57,7 +57,7 @@ struct sIPCSharedTGDSSpecific* getsIPCSharedTGDSSpecific(){
 #ifdef ARM9
 __attribute__((section(".itcm")))
 #endif
-void HandleFifoNotEmptyWeakRef(uint32 cmd1,uint32 cmd2,uint32 cmd3,uint32 cmd4){	
+void HandleFifoNotEmptyWeakRef(uint32 cmd1,uint32 cmd2){	
 	switch (cmd1) {
 		//NDS7: uses NDS IPC FIFO as a layer from GBA IO @ ARM9
 		#ifdef ARM7
@@ -72,7 +72,7 @@ void HandleFifoNotEmptyWeakRef(uint32 cmd1,uint32 cmd2,uint32 cmd3,uint32 cmd4){
 #ifdef ARM9
 __attribute__((section(".itcm")))
 #endif
-void HandleFifoEmptyWeakRef(uint32 cmd1,uint32 cmd2,uint32 cmd3,uint32 cmd4){
+void HandleFifoEmptyWeakRef(uint32 cmd1,uint32 cmd2){
 }
 
 //project specific stuff

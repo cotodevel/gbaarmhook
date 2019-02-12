@@ -71,8 +71,8 @@ extern "C" {
 extern struct gbaheader_t gbaheader;
 extern struct sIPCSharedTGDSSpecific* getsIPCSharedTGDSSpecific();
 //NOT weak symbols : the implementation of these is project-defined (here)
-extern void HandleFifoNotEmptyWeakRef(uint32 cmd1,uint32 cmd2,uint32 cmd3,uint32 cmd4);
-extern void HandleFifoEmptyWeakRef(uint32 cmd1,uint32 cmd2,uint32 cmd3,uint32 cmd4);
+extern void HandleFifoNotEmptyWeakRef(uint32 cmd1,uint32 cmd2);
+extern void HandleFifoEmptyWeakRef(uint32 cmd1,uint32 cmd2);
 
 #ifdef __cplusplus
 }
