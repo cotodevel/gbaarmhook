@@ -11,7 +11,7 @@
 #include "fsfatlayerTGDS.h"
 #include "fileHandleTGDS.h"
 #include "InterruptsARMCores_h.h"
-#include "specific_shared.h"
+#include "ipcfifoTGDSUser.h"
 #include "ff.h"
 #include "memoryHandleTGDS.h"
 #include "reent.h"

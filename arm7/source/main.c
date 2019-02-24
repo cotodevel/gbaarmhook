@@ -24,7 +24,7 @@ USA
 #include "interrupts.h"
 
 #include "ipcfifoTGDS.h"
-#include "specific_shared.h"
+#include "ipcfifoTGDSUser.h"
 
 #include "wifi_arm7.h"
 #include "usrsettingsTGDS.h"

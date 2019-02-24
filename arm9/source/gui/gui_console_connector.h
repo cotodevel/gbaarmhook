@@ -28,7 +28,7 @@ USA
 #include <stdarg.h>
 #include <malloc.h>
 #include <ctype.h>
-#include "specific_shared.h"
+#include "ipcfifoTGDSUser.h"
 
 #include "typedefsTGDS.h"
 #include "dsregs.h"

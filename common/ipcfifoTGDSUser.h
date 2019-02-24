@@ -18,7 +18,12 @@ USA
 
 */
 
-//inherits what is defined in: ipcfifoTGDS.h
+//TGDS required version: IPC Version: 1.3
+
+//IPC FIFO Description: 
+//		struct sIPCSharedTGDS * TGDSIPC = TGDSIPCStartAddress; 														// Access to TGDS internal IPC FIFO structure. 		(ipcfifoTGDS.h)
+//		struct sIPCSharedTGDSSpecific * TGDSUSERIPC = (struct sIPCSharedTGDSSpecific *)TGDSIPCUserStartAddress;		// Access to TGDS Project (User) IPC FIFO structure	(ipcfifoTGDSUser.h)
+
 #ifndef __specific_shared_h__
 #define __specific_shared_h__
 
@@ -69,7 +74,6 @@ extern "C" {
 #endif
 
 extern struct gbaheader_t gbaheader;
-extern struct sIPCSharedTGDSSpecific* getsIPCSharedTGDSSpecific();
 //NOT weak symbols : the implementation of these is project-defined (here)
 extern void HandleFifoNotEmptyWeakRef(uint32 cmd1,uint32 cmd2);
 extern void HandleFifoEmptyWeakRef(uint32 cmd1,uint32 cmd2);

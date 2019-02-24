@@ -18,7 +18,7 @@ USA
 
 */
 
-#include "specific_shared.h"
+#include "ipcfifoTGDSUser.h"
 #include "dsregs.h"
 #include "dsregs_asm.h"
 
@@ -62,11 +62,12 @@ void HblankUser(){
 __attribute__((section(".itcm")))
 #endif
 void VblankUser(){
-	if(getsIPCSharedTGDSSpecific()->frameCounter7 < 60){
-		getsIPCSharedTGDSSpecific()->frameCounter7++;
+	struct sIPCSharedTGDSSpecific * TGDSUSERIPC = (struct sIPCSharedTGDSSpecific *)TGDSIPCUserStartAddress;
+	if(TGDSUSERIPC->frameCounter7 < 60){
+		TGDSUSERIPC->frameCounter7++;
 	}
 	else{
-		getsIPCSharedTGDSSpecific()->frameCounter7 = 0;
+		TGDSUSERIPC->frameCounter7 = 0;
 	}
 }
 

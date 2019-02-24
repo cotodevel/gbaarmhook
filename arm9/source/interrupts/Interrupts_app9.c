@@ -19,7 +19,7 @@ USA
 */
 
 #include "InterruptsARMCores_h.h"
-#include "specific_shared.h"
+#include "ipcfifoTGDSUser.h"
 #include "dsregs_asm.h"
 #include "main.h"
 #include "keypadTGDS.h"
@@ -60,11 +60,12 @@ void HblankUser(){
 __attribute__((section(".itcm")))
 #endif
 void VblankUser(){
-	if(getsIPCSharedTGDSSpecific()->frameCounter9 < 60){
-		getsIPCSharedTGDSSpecific()->frameCounter9++;
+	struct sIPCSharedTGDSSpecific * TGDSUSERIPC = (struct sIPCSharedTGDSSpecific *)TGDSIPCUserStartAddress;
+	if(TGDSUSERIPC->frameCounter9 < 60){
+		TGDSUSERIPC->frameCounter9++;
 	}
 	else{
-		getsIPCSharedTGDSSpecific()->frameCounter9 = 0;
+		TGDSUSERIPC->frameCounter9 = 0;
 	}
 }
 
