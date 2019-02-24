@@ -101,4 +101,21 @@ bool do_multi(struct frameBlock * frameBlockRecv)
 	return false;
 }
 
+//DSWNIFI callbacks. These run only once per DSWNIFI set mode
+void OnDSWIFIlocalnifiEnable(){
+
+}
+
+void OnDSWIFIidlemodeEnable(){
+
+}
+
+void OnDSWIFIudpnifiEnable(){
+
+}
+
+void OnDSWIFIGDBStubEnable(){
+
+}
+
 #endif
