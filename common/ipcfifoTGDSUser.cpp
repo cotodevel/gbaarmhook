@@ -57,11 +57,11 @@ __attribute__((section(".itcm")))
 #endif
 void HandleFifoNotEmptyWeakRef(uint32 cmd1,uint32 cmd2){	
 	switch (cmd1) {
-		//NDS7: uses NDS IPC FIFO as a layer from GBA IO @ ARM9
+		//NDS7: 
 		#ifdef ARM7
 		#endif
 		
-		//NDS9: uses NDS IPC FIFO as a layer from GBA IO @ ARM7
+		//NDS9: 
 		#ifdef ARM9
 		#endif
 	}
