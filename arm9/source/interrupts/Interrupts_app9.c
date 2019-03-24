@@ -30,6 +30,13 @@ USA
 #ifdef ARM9
 __attribute__((section(".itcm")))
 #endif
+void IpcSynchandlerUser(){
+	
+}
+
+#ifdef ARM9
+__attribute__((section(".itcm")))
+#endif
 void Timer0handlerUser(){
 }
 
