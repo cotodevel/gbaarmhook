@@ -24,11 +24,11 @@ USA
 
 ////////[For custom Console implementation]:////////
 //You need to override :
-	//vramSetup * getProjectSpecificVRAMSetup()
+	//ConsoleInstance * getProjectSpecificVRAMSetup()
 	//Which provides a proper custom 2D VRAM setup
 
 //Then override :
-	//bool InitProjectSpecificConsole()
+	//bool InitProjectSpecificConsole(ConsoleInstance * ConsoleInstanceInst)
 	//Which provides the console init code, example not available here, checkout projects that support Custom console implementation.
 
 //After that you can call :
@@ -55,6 +55,6 @@ ConsoleInstance * getProjectSpecificVRAMSetup(){
 
 //2) Uses subEngine: VRAM Layout -> Console Setup
 bool InitProjectSpecificConsole(ConsoleInstance * ConsoleInstanceInst){
-	InitializeConsole(ConsoleInstanceInst);
+	UpdateConsoleSettings(ConsoleInstanceInst);
 	return true;
 }
