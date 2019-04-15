@@ -48,14 +48,13 @@ USA
 
 
 //Definition that overrides the weaksymbol expected from toolchain to init console video subsystem
-vramSetup * getProjectSpecificVRAMSetup(){
+ConsoleInstance * getProjectSpecificVRAMSetup(){
 	return NULL;
 }
 
 
 //2) Uses subEngine: VRAM Layout -> Console Setup
-bool InitProjectSpecificConsole(){
-	DefaultSessionConsole = (ConsoleInstance *)(&CustomConsole);
-	InitializeConsole(DefaultSessionConsole);
+bool InitProjectSpecificConsole(ConsoleInstance * ConsoleInstanceInst){
+	InitializeConsole(ConsoleInstanceInst);
 	return true;
 }
