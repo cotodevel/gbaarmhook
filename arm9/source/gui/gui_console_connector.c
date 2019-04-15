@@ -17,8 +17,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
 USA
 */
 
-//This file abstracts specific SnemulDS console code that relies on core functionality.
-
+//This file abstracts specific TGDS console code which allows for easy DS console setup.
 
 #include "gui_console_connector.h"
 
