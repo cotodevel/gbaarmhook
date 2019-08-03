@@ -8,7 +8,7 @@
 //base address / size (bytes) for DTCM (512<<n )
 
 //filesystem
-#include "fsfatlayerTGDS.h"
+#include "fatfslayerTGDS.h"
 #include "fileHandleTGDS.h"
 #include "InterruptsARMCores_h.h"
 #include "ipcfifoTGDSUser.h"

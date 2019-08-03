@@ -16,7 +16,7 @@
 
 #include "nds_cp15_misc.h"
 #include "dldi.h"
-#include "fsfatlayerTGDS.h"
+#include "fatfslayerTGDS.h"
 #include "fileHandleTGDS.h"
 #include "InterruptsARMCores_h.h"
 #include "ipcfifoTGDSUser.h"
@@ -59,7 +59,7 @@ FN_MEDIUM_READSECTORS	readSectorslocked;
 */
 
 extern int PosixStructFDLastLoadFile;	//Coto: a StructFD non-posix file descriptor having the handle for the FILE * opened at the time the sector table map was generated.
-										//TGDS uses this to access the FSFAT level file attributes
+										//TGDS uses this to access the fatfs level file attributes
 extern u32 current_pointer;
 extern u32 allocedfild[buffslots];
 extern u8* greatownfilebuffer;
