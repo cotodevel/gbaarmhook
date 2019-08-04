@@ -55,8 +55,8 @@ void generatefilemap(FILE * f, int size)	//FILE * f is already open at this poin
 	struct fd * fdinst = NULL;
 	if(f){
 		fd = fileno(f);
-		fdinst = fd_struct_get(fd);
-		PosixStructFDLastLoadFile = fd;		//use fd_struct_get(PosixStructFDLastLoadFile) to access the File from now on!
+		fdinst = getStructFD(fd);
+		PosixStructFDLastLoadFile = fd;		//use getStructFD(PosixStructFDLastLoadFile) to access the File from now on!
 	}
 	else{
 		clrscr();
@@ -149,7 +149,7 @@ void getandpatchmap(int offsetgba,int offsetthisfile,FILE * f)	//FILE * f is alr
 	int mappoffset = offsetthisfile/chucksize;
 	if(f){
 		fd = fileno(f);
-		fdinst = fd_struct_get(fd);
+		fdinst = getStructFD(fd);
 		sectortabel[mappoffset*2 + 1] = getStructFDStartSectorByCluster(fdinst, clusCount) + offset1;
 	}
 	else{
