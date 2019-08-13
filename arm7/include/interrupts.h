@@ -10,7 +10,8 @@ extern void Timer3handlerUser();
 extern void HblankUser();
 extern void VblankUser();
 extern void VcounterUser();
-extern void ScreenlidhandlerUser();
+extern void screenLidHasOpenedhandlerUser();
+extern void screenLidHasClosedhandlerUser();
 
 #ifdef __cplusplus
 }

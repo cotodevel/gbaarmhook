@@ -97,6 +97,15 @@ void VcounterUser(){
 __attribute__((section(".itcm")))
 #endif
 inline __attribute__((always_inline)) 
-void ScreenlidhandlerUser(){
+void screenLidHasOpenedhandlerUser(){
+	isArm7ClosedLid = false;
+}
 
+//Note: this event is hardware triggered from ARM7, on ARM9 a signal is raised through the FIFO hardware
+#ifdef ARM9
+__attribute__((section(".itcm")))
+#endif
+inline __attribute__((always_inline)) 
+void screenLidHasClosedhandlerUser(){
+	setBacklight(0);
 }

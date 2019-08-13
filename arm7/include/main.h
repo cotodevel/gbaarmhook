@@ -28,6 +28,7 @@ USA
 extern "C" {
 #endif
 
+extern bool isArm7ClosedLid;
 extern bool vblank_gba_period;
 extern u8* soundbuffA;
 extern u8* soundbuffB;

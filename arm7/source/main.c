@@ -34,6 +34,8 @@ USA
 #include "dmaIO.h"
 #include "CPUARMTGDS.h"
 
+bool isArm7ClosedLid = false;
+
 //---------------------------------------------------------------------------------
 int main(int _argc, sint8 **_argv) {
 //---------------------------------------------------------------------------------
@@ -45,6 +47,13 @@ int main(int _argc, sint8 **_argv) {
 	REG_SOUNDCNT = SOUND_ENABLE | SOUND_VOL(0x7F);
 	
     while (1) {
+		if(isArm7ClosedLid == false){
+			if((REG_KEYXY & KEY_HINGE) == KEY_HINGE){
+				SendFIFOWords(FIFO_IRQ_LIDHASCLOSED_SIGNAL, 0);
+				screenLidHasClosedhandlerUser();
+				isArm7ClosedLid = true;
+			}
+		}
 		IRQVBlankWait();
 	}
    
