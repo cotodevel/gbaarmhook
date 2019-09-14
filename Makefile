@@ -20,7 +20,7 @@
 
 #ToolchainGenericDS specific: Use Makefiles from either TGDS, or custom
 export SOURCE_MAKEFILE7 = default
-export SOURCE_MAKEFILE9 = custom
+export SOURCE_MAKEFILE9 = default
 
 #Non FPIC Code: Use Makefiles from either TGDS, or custom
 #FPIC code is always default TGDS Makefile
@@ -47,9 +47,9 @@ export NONSTRIPELF_ARM7 = arm7-nonstripped.elf
 export NONSTRIPELF_ARM9 = arm9-nonstripped.elf
 
 export TARGET_LIBRARY_CRT0_FILE_7 = nds_arm_ld_crt0
-export TARGET_LIBRARY_CRT0_FILE_9 = ds_arm9_crt0
+export TARGET_LIBRARY_CRT0_FILE_9 = nds_arm_ld_crt0
 export TARGET_LIBRARY_LINKER_FILE_7 = $(TARGET_LIBRARY_PATH)$(TARGET_LIBRARY_LINKER_SRC)/$(TARGET_LIBRARY_CRT0_FILE_7).S
-export TARGET_LIBRARY_LINKER_FILE_9 = $(CURDIR)/$(DIR_ARM9)/ds_arm9_crt0.S
+export TARGET_LIBRARY_LINKER_FILE_9 = $(TARGET_LIBRARY_PATH)$(TARGET_LIBRARY_LINKER_SRC)/$(TARGET_LIBRARY_CRT0_FILE_9).S
 
 export TARGET_LIBRARY_NAME_7 = toolchaingen7
 export TARGET_LIBRARY_NAME_9 = toolchaingen9

@@ -1,4 +1,4 @@
-#include "opcode.h"
+#include "ipc.h"
 
 struct fifo_semaphore FIFO_SEMAPHORE_FLAGS;
 
