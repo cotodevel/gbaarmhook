@@ -32,7 +32,7 @@ USA
 #include "typedefsTGDS.h"
 #include "ipcfifoTGDS.h"
 #include "dswnifi.h"
-#include "memoryHandleTGDS.h"
+#include "utilsTGDS.h"
 
 //gba dma fifo
 #define INTERNAL_FIFO_SIZE 	(sint32)(16)	//each DMA
