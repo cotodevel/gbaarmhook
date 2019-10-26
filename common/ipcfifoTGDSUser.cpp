@@ -26,28 +26,21 @@ USA
 //		struct sIPCSharedTGDSSpecific * TGDSUSERIPC = (struct sIPCSharedTGDSSpecific *)TGDSIPCUserStartAddress;		// Access to TGDS Project (User) IPC FIFO structure	(ipcfifoTGDSUser.h)
 
 
-#include "ipcfifoTGDS.h"
-#include "ipcfifoTGDSUser.h"
+#include "main.h"
+#include "typedefsTGDS.h"
 #include "dsregs.h"
 #include "dsregs_asm.h"
+#include "ipcfifoTGDS.h"
+#include "ipcfifoTGDSUser.h"
 #include "InterruptsARMCores_h.h"
 
 #ifdef ARM7
-#include <string.h>
-
-#include "main.h"
 #include "wifi_arm7.h"
 #include "spiTGDS.h"
-#include "dmaIO.h"
-
 #endif
 
 #ifdef ARM9
-
-#include <stdbool.h>
-#include "main.h"
 #include "wifi_arm9.h"
-
 #endif
 
 struct gbaheader_t gbaheader;

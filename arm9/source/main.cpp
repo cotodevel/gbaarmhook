@@ -82,7 +82,6 @@ USA
 #include "armstorm/thumb.h" //THUMB DISASSEMBLER
 #include "armstorm/thumb_db.h" //THUMB DISASSEMBLER
 
-
 char temppath[256 * 2];
 char biospath[256 * 2];
 char savepath[256 * 2];
@@ -212,9 +211,10 @@ int main(int _argc, sint8 **_argv) {
 	strcat(temppath,(char*)"/gba/rs-pzs.gba");
 
 	//opengbarom
-	if(isgbaopen(gbaromfile)==0)
+	if(isgbaopen(gbaromfile)==0){
 		printf("ready to open gbarom. ");
-	if (opengbarom((const char*)getfatfsPath((char*)"gba/rs-pzs.gba"),"r+")==0){
+	}
+	if (opengbarom((const char*)getfatfsPath((char*)"gba/rs-pzs.gba"),"r+") == 0){
 		//printf("GBAROM open OK!");
 		//printf("GBAROM size is (%d) bytes", (int)getfilesizegbarom());
 	}
@@ -259,7 +259,6 @@ int main(int _argc, sint8 **_argv) {
 	//printf(">NDS7_RTC_PROCESS EXTRACT'd (%d) ARM opcodes",(int)NDS7_RTC_PROCESS_SIZE);
 	
 	//mostly ARM code
-	//writeu32gbarom(int offset,u32 * buffer_input,int size);
 	//PATCH_BOOTCODE (entrypoint patch...)
 	writeu32gbarom(0x00ff8000,(u32*)(buf_wram),PATCH_BOOTCODE_SIZE*4);
 	
