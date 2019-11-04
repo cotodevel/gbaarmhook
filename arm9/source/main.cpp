@@ -17,70 +17,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
 USA
 
 */
+
+#include "main.h"
 #include "typedefsTGDS.h"
 #include "dsregs.h"
 #include "dsregs_asm.h"
-
-#include "socket.h"
-#include "in.h"
-#include <netdb.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fcntl.h>
-
-#include "main.h"
-
-//filesystem
-#include "fatfslayerTGDS.h"
-#include "fileHandleTGDS.h"
-#include "InterruptsARMCores_h.h"
-#include "ipcfifoTGDSUser.h"
-#include "ff.h"
-#include "reent.h"
-#include "sys/types.h"
-#include "consoleTGDS.h"
-#include "utilsTGDS.h"
-#include "devoptab_devices.h"
-#include "posixHandleTGDS.h"
-#include "xenofunzip.h"
-
-#include "fs.h"
-
-#include "devoptab_devices.h"
-#include "usrsettingsTGDS.h"
-
-#include "videoTGDS.h"
 #include "keypadTGDS.h"
-
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>//BRK(); SBRK();
-
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <ctype.h>
-#include "stdint.h"
-#include "dswnifi_lib.h"
-
-//zlib (gzip) and zip
-//#include "zlib/zlib.h"
-//#include "zlib/zip/unzip.h"
-
-//disassembler (thumb)
-
-#include "armstorm/arm.h" //THUMB DISASSEMBLER
-#include "armstorm/armstorm.h" //THUMB DISASSEMBLER
-#include "armstorm/common.h" //THUMB DISASSEMBLER
-#include "armstorm/thumb.h" //THUMB DISASSEMBLER
-#include "armstorm/thumb_db.h" //THUMB DISASSEMBLER
+#include "fs.h"
 
 char temppath[256 * 2];
 char biospath[256 * 2];
