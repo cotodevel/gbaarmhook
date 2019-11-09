@@ -24,6 +24,8 @@ USA
 #include "dsregs_asm.h"
 #include "keypadTGDS.h"
 #include "fs.h"
+#include "TGDSNDSLogo.h"
+#include "dswnifi_lib.h"
 
 char temppath[256 * 2];
 char biospath[256 * 2];
@@ -127,7 +129,7 @@ return m;
 int main(int _argc, sint8 **_argv) {
 
 	/*			TGDS 1.5 Standard ARM9 Init code start	*/
-	bool project_specific_console = false;	//set default console or custom console: default console
+	bool project_specific_console = true;	//set default console or custom console: custom console
 	GUI_init(project_specific_console);
 	GUI_clear();
 
@@ -145,8 +147,12 @@ int main(int _argc, sint8 **_argv) {
 	{
 		printf("FS Init error.");
 	}
-	//switch_dswnifi_mode(dswifi_idlemode);	//causes freezes.
+	switch_dswnifi_mode(dswifi_idlemode);
 	/*			TGDS 1.5 Standard ARM9 Init code end	*/
+	
+	//show TGDS logo
+	initFBModeSubEngine0x06200000();
+	renderFBMode3SubEngine((u16*)&TGDSLogoNDSSize[0], (int)TGDSLOGONDSSIZE_WIDTH,(int)TGDSLOGONDSSIZE_HEIGHT);
 	
 	biospath[0] = 0;
 	savepath[0] = 0;
