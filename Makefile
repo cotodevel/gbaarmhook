@@ -60,12 +60,14 @@ export TARGET_LIBRARY_FILE_9	=	lib$(TARGET_LIBRARY_NAME_9).a
 
 export DIRS_ARM7_SRC = source/	\
 			source/interrupts/	\
-			../common/
+			../common/	\
+			../common/templateCode/
 			
 export DIRS_ARM7_HEADER = source/	\
 			source/interrupts/	\
 			include/	\
 			../common/	\
+			../common/templateCode/	\
 			../$(PosIndCodeDIR_FILENAME)/$(DIR_ARM7)/include/
 #####################################################ARM9#####################################################
 
@@ -77,7 +79,8 @@ export DIRS_ARM9_SRC = source/	\
 			source/pu/ \
 			source/util/ \
 			source/armstorm/ \
-			../common/
+			../common/	\
+			../common/templateCode/
 
 export DIRS_ARM9_HEADER = include/	\
 			source/	\
@@ -89,6 +92,7 @@ export DIRS_ARM9_HEADER = include/	\
 			source/util/ \
 			source/armstorm/ \
 			../common/	\
+			../common/templateCode/	\
 			../$(PosIndCodeDIR_FILENAME)/$(DIR_ARM9)/include/
 
 # Build Target(s)	(both processors here)
@@ -100,6 +104,7 @@ all: $(EXECUTABLE_FNAME)
 
 #Make
 compile	:
+	-cp	-r	$(TARGET_LIBRARY_PATH)$(TARGET_LIBRARY_MAKEFILES_SRC)/templateCode/	$(CURDIR)/common/
 	-cp	-r	$(TARGET_LIBRARY_MAKEFILES_SRC7_FPIC)	$(CURDIR)/$(PosIndCodeDIR_FILENAME)/$(DIR_ARM7)
 	-$(MAKE)	-R	-C	$(PosIndCodeDIR_FILENAME)/$(DIR_ARM7)/
 	-cp	-r	$(TARGET_LIBRARY_MAKEFILES_SRC9_FPIC)	$(CURDIR)/$(PosIndCodeDIR_FILENAME)/$(DIR_ARM9)
@@ -136,4 +141,4 @@ ifeq ($(SOURCE_MAKEFILE9),default)
 endif
 	-@rm -rf $(CURDIR)/$(PosIndCodeDIR_FILENAME)/$(DIR_ARM7)/Makefile
 	-@rm -rf $(CURDIR)/$(PosIndCodeDIR_FILENAME)/$(DIR_ARM9)/Makefile
-	-@rm -fr $(EXECUTABLE_FNAME)
+	-@rm -fr $(EXECUTABLE_FNAME)	$(CURDIR)/common/templateCode/
