@@ -15,7 +15,6 @@
 #include "nds_cp15_misc.h"
 #include "dldi.h"
 #include "fatfslayerTGDS.h"
-#include "fileHandleTGDS.h"
 #include "InterruptsARMCores_h.h"
 #include "ipcfifoTGDSUser.h"
 #include "ff.h"
