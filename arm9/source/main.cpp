@@ -26,6 +26,7 @@ USA
 #include "fs.h"
 #include "TGDSLogoLZSSCompressed.h"
 #include "dswnifi_lib.h"
+#include "biosTGDS.h"
 
 char temppath[256 * 2];
 char biospath[256 * 2];
@@ -245,6 +246,7 @@ int main(int _argc, sint8 **_argv) {
 			GUI_clear();
 		}
 		
+		handleARM9SVC();	/* Do not remove, handles TGDS services */
 		IRQVBlankWait();
 	}
 	return 0;
