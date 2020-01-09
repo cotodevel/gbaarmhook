@@ -154,6 +154,8 @@ int main(int _argc, sint8 **_argv) {
 	//render TGDSLogo from a LZSS compressed file
 	RenderTGDSLogoSubEngine((uint8*)&TGDSLogoLZSSCompressed[0], TGDSLogoLZSSCompressed_size);
 	
+	printf("Available heap memory: %d", getMaxRam());
+	
 	biospath[0] = 0;
 	savepath[0] = 0;
 	patchpath[0] = 0;
