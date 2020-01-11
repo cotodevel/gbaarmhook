@@ -30,7 +30,8 @@ include $(DEFAULT_GCC_PATH)Makefile.basenewlib
 
 #Custom
 # Project Specific
-export EXECUTABLE_FNAME = gbaARMHook.nds
+export TGDSPROJECTNAME = gbaARMHook
+export EXECUTABLE_FNAME = $(TGDSPROJECTNAME).nds
 export EXECUTABLE_VERSION_HEADER =	0.1
 export EXECUTABLE_VERSION =	"$(EXECUTABLE_VERSION_HEADER)"
 
@@ -128,7 +129,7 @@ endif
 
 $(EXECUTABLE_FNAME)	:	compile
 	-@echo 'ndstool begin'
-	$(NDSTOOL)	-v	-c $@	-7  $(CURDIR)/arm7/$(BINSTRIP_RULE_7)	-e7  0x03800000	-9 $(CURDIR)/arm9/$(BINSTRIP_RULE_9) -e9  0x02000000
+	$(NDSTOOL)	-v	-c $@	-7  $(CURDIR)/arm7/$(BINSTRIP_RULE_7)	-e7  0x03800000	-9 $(CURDIR)/arm9/$(BINSTRIP_RULE_9) -e9  0x02000000	-b	icon.bmp "ToolchainGenericDS SDK;$(TGDSPROJECTNAME) NDS Binary; "
 	-@echo 'ndstool end: built: $@'
 	
 #---------------------------------------------------------------------------------
