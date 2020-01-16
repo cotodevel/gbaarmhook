@@ -28,6 +28,11 @@ int main(int _argc, sint8 **_argv) {
 	installWifiFIFO();		
 	/*			TGDS 1.5 Standard ARM7 Init code end	*/
 	
+	//wait for VRAM D to be assigned from ARM9->ARM7 (ARM7 has load/store on byte/half/words on VRAM)
+	while (!(*((vuint8*)0x04000240) & 0x2));
+	
+	TGDSDLDIARM7SetupStage0((u32)0x06000000 + (64*1024));
+	
 	powerON(POWER_SOUND);
 	REG_SOUNDCNT = SOUND_ENABLE | SOUND_VOL(0x7F);
 	
