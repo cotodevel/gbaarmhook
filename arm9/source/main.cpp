@@ -27,6 +27,7 @@ USA
 #include "TGDSLogoLZSSCompressed.h"
 #include "dswnifi_lib.h"
 #include "biosTGDS.h"
+#include "global_settings.h"
 
 char temppath[256 * 2];
 char biospath[256 * 2];
@@ -139,7 +140,10 @@ int main(int _argc, sint8 **_argv) {
 	printf("     ");
 	printf("     ");
 	
+	#ifdef ARM7_DLDI
 	setDLDIARM7Address((u32 *)TGDSDLDI_ARM7_ADDRESS);	//Required by ARM7DLDI!
+	#endif
+	
 	int ret=FS_init();
 	if (ret == 0)
 	{
