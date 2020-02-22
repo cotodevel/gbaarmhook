@@ -104,9 +104,7 @@ __attribute__((section(".itcm")))
 #endif
 inline __attribute__((always_inline)) 
 void screenLidHasOpenedhandlerUser(){
-	setBacklight(POWMAN_BACKLIGHT_TOP_BIT | POWMAN_BACKLIGHT_BOTTOM_BIT);	//both lit screens
-	SetLedState(LED_ON);
-	isArm7ClosedLid = false;
+	TurnOnScreens();
 }
 
 //Note: this event is hardware triggered from ARM7, on ARM9 a signal is raised through the FIFO hardware
@@ -115,6 +113,5 @@ __attribute__((section(".itcm")))
 #endif
 inline __attribute__((always_inline)) 
 void screenLidHasClosedhandlerUser(){
-	setBacklight(0);
-	SetLedState(LED_LONGBLINK);
+	TurnOffScreens();
 }
