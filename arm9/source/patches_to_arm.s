@@ -1,18 +1,12 @@
+@GBAARMHook Patches. Date: 20/02/15 
+
 .align 4
 .code 32
 .arm
 .cpu arm7tdmi
 .text
 
-@patches (from 20/02/15 outdated)
-@ldr #imm -4095 and +4095 (inclusive). / remember pc is 8 bytes ahead (prefetch + next opcode)
-.global dummyopcode
-dummyopcode:
-	ldr pc,[pc, #(-(0x204+0x8)+(0x000000d0))]		@replace 0x204 with current PC address + offset (word size) of the word location on rom (must be 4095+- from base)
-	ldr pc,[pc,#-0x4]
-	bx r1
-	pop  {r0,r2,r4,r5,r14}
-	
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Internal, no need to modify@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 .global PATCH_ENTRYPOINT
 .type	PATCH_ENTRYPOINT STT_FUNC
 PATCH_ENTRYPOINT:
@@ -115,8 +109,12 @@ PATCH_HOOK_START:
 	
 	stmdb r3!,{r0,r2,r4,r5}			@jump to stack redirect /old stack cont doesnt matter
 	mov pc, r3
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Internal, no need to modify end @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-@OUR NDS7/GBA ARM7TDMI vblank IRQ hook process.. write what you need here
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ User space Handler. Write your custom code here. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+@NDS7/GBA ARM7TDMI vblank IRQ hook process. 
 .global NDS7_RTC_PROCESS
 NDS7_RTC_PROCESS:
 	
@@ -149,6 +147,9 @@ NDS7_RTC_PROCESS:
 	ldmdb r0,{r1-r14}
 	
 	bx lr
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ User space Handler end. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 .align
 .pool
 .end
