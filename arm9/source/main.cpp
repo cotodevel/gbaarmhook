@@ -23,16 +23,18 @@ USA
 #include "dsregs.h"
 #include "dsregs_asm.h"
 #include "keypadTGDS.h"
-#include "fs.h"
+#include "gbaarmhookFS.h"
 #include "TGDSLogoLZSSCompressed.h"
 #include "dswnifi_lib.h"
 #include "biosTGDS.h"
 #include "global_settings.h"
+#include "fileBrowse.h"
+#include "crc32.h"
 
-char temppath[256 * 2];
-char biospath[256 * 2];
-char savepath[256 * 2];
-char patchpath[256 * 2];
+char curChosenBrowseFile[MAX_TGDSFILENAME_LENGTH+1];
+char biospath[MAX_TGDSFILENAME_LENGTH+1];
+char savepath[MAX_TGDSFILENAME_LENGTH+1];
+char patchpath[MAX_TGDSFILENAME_LENGTH+1];
 
 //extract_word(u32 * buffer (haystack), u32 word (needle) , int buffsize, u32 * buffer (output data),u32 delimiter_word), u8 type = 0 character string / 1 = hex
 //extracts all values until "delimiter"
@@ -167,18 +169,32 @@ int main(int _argc, sint8 **_argv) {
 	biospath[0] = 0;
 	savepath[0] = 0;
 	patchpath[0] = 0;
-	strcat(temppath,(char*)"/gba/rs-pzs.gba");
-
-	//opengbarom
-	if(isgbaopen(gbaromfile)==0){
-		printf("ready to open gbarom. ");
+	
+	char startPath[MAX_TGDSFILENAME_LENGTH+1];
+	strcpy(startPath,"/");
+	while( ShowBrowser((char *)startPath, (char *)curChosenBrowseFile) == true ){	//as long you keep using directories ShowBrowser will be true
+		//navigating DIRs here...
 	}
-	if (opengbarom((const char*)getfatfsPath((char*)"gba/rs-pzs.gba"),"r+") == 0){
-		//printf("GBAROM open OK!");
-		//printf("GBAROM size is (%d) bytes", (int)getfilesizegbarom());
+	globalfileHandle = opengbarom(curChosenBrowseFile, "r+");
+	if (globalfileHandle != NULL){
+		printf("Please wait calculating CRC32...");
+		//CRC32 handling
+		unsigned long crc32 = -1;
+		int err;
+		err = Crc32_ComputeFile(globalfileHandle, &crc32 );
+		if (err == -1){
+			printf("Couldn't calculate CRC32.");
+			printf("Power Off NDS.");
+		}
+		if((u32)crc32 != (u32)0x5F35977E){
+			printf("Invalid file: crc32 = 0x%x ", crc32);
+			printf("Expected: crc32 = 0x%x ", 0x5F35977E);
+			printf("Power Off NDS.");
+			while(1);
+		}
 	}
 	else {
-		printf("GBAROM open ERROR. close the nds");
+		printf("GBA File not found. Power Off NDS.");
 		while(1);
 	}
 
@@ -244,18 +260,10 @@ int main(int _argc, sint8 **_argv) {
 	
 	free(buf_wram);
 	closegbarom();
-
+	printf("File patched successfully. Power Off NDS.");
+	
 	while (1)
 	{
-		scanKeys();
-		if (keysPressed() & KEY_A){
-			printf("test:%d",rand()&0xff);
-		}
-		
-		if (keysPressed() & KEY_B){
-			GUI_clear();
-		}
-		
 		handleARM9SVC();	/* Do not remove, handles TGDS services */
 		IRQVBlankWait();
 	}
