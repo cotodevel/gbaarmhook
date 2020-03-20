@@ -185,12 +185,13 @@ int main(int _argc, sint8 **_argv) {
 		if (err == -1){
 			printf("Couldn't calculate CRC32.");
 			printf("Power Off NDS.");
+			while(1==1){}
 		}
 		if((u32)crc32 != (u32)0x5F35977E){
 			printf("Invalid file: crc32 = 0x%x ", crc32);
 			printf("Expected: crc32 = 0x%x ", 0x5F35977E);
 			printf("Power Off NDS.");
-			while(1);
+			while(1==1){}
 		}
 	}
 	else {
@@ -261,7 +262,6 @@ int main(int _argc, sint8 **_argv) {
 	free(buf_wram);
 	closegbarom();
 	printf("File patched successfully. Power Off NDS.");
-	
 	while (1)
 	{
 		handleARM9SVC();	/* Do not remove, handles TGDS services */
