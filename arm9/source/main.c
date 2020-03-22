@@ -130,6 +130,19 @@ else if (type==32){
 return m;
 }
 
+
+static inline void menuShow(){
+	clrscr();
+	printf("     ");
+	printf("     ");
+	
+	printf("GBAARMHook ");
+	printf("(Select): This menu. ");
+	printf("(A): Patch GBA Rom (CRC32:%x) ");
+	printf("Available heap memory: %d", getMaxRam());
+	printf("ARM7 Status: %s", printf7Buffer);
+}
+
 int main(int _argc, sint8 **_argv) {
 
 	/*			TGDS 1.5 Standard ARM9 Init code start	*/
@@ -164,106 +177,123 @@ int main(int _argc, sint8 **_argv) {
 	//Remove logo and restore Main Engine registers
 	//restoreFBModeMainEngine();
 	
-	printf("Available heap memory: %d", getMaxRam());
+	menuShow();
 	
-	biospath[0] = 0;
-	savepath[0] = 0;
-	patchpath[0] = 0;
-	
-	char startPath[MAX_TGDSFILENAME_LENGTH+1];
-	strcpy(startPath,"/");
-	while( ShowBrowser((char *)startPath, (char *)curChosenBrowseFile) == true ){	//as long you keep using directories ShowBrowser will be true
-		//navigating DIRs here...
-	}
-	globalfileHandle = opengbarom(curChosenBrowseFile, "r+");
-	if (globalfileHandle != NULL){
-		printf("Please wait calculating CRC32...");
-		//CRC32 handling
-		unsigned long crc32 = -1;
-		int err;
-		err = Crc32_ComputeFile(globalfileHandle, &crc32 );
-		if (err == -1){
-			printf("Couldn't calculate CRC32.");
-			printf("Power Off NDS.");
-			while(1==1){}
-		}
-		if((u32)crc32 != (u32)0x5F35977E){
-			printf("Invalid file: crc32 = 0x%x ", crc32);
-			printf("Expected: crc32 = 0x%x ", 0x5F35977E);
-			printf("Power Off NDS.");
-			while(1==1){}
-		}
-	}
-	else {
-		printf("GBA File not found. Power Off NDS.");
-		while(1);
-	}
-
-	//int gbaofset=0;
-	//printf("gbaromread @ %x:[%x]",(unsigned int)(0x08000000+gbaofset),(unsigned int)readu32gbarom(gbaofset));
-
-	// u32 PATCH_BOOTCODE();
-	// u32 PATCH_START();
-	// u32 PATCH_HOOK_START();
-
-	//label asm patcher	
-	u32 * PATCH_BOOTCODE_PTR =((u32*)&PATCH_BOOTCODE);
-	u32 * PATCH_START_PTR =((u32*)&PATCH_START);
-	u32 * PATCH_HOOK_START_PTR =((u32*)&PATCH_HOOK_START);
-	u32 * NDS7_RTC_PROCESS_PTR =((u32*)&NDS7_RTC_PROCESS);
-	
-	//printf("PATCH_BOOTCODE[0]: (%x) ",(unsigned int)(PATCH_BOOTCODE_PTR[0]));
-	//printf("PATCH_START[0]: (%x) ",(unsigned int)(PATCH_START_PTR[0]));
-	//printf("PATCH_HOOK_START[0]: (%x) ",(unsigned int)(PATCH_HOOK_START_PTR[0]));
-	
-	u8* buf_wram = (u8*)malloc(1024*1024*1);
-	
-	//PATCH_BOOTCODE EXTRACT
-	int PATCH_BOOTCODE_SIZE = extract_word(PATCH_BOOTCODE_PTR,(PATCH_BOOTCODE_PTR[0]),(int)(4*64),(u32*)buf_wram,0xe1a0f00d,32); //mov pc,sp end
-	//printf(">PATCH_BOOTCODE EXTRACT'd (%d) opcodes",(int)PATCH_BOOTCODE_SIZE);
-	
-	//PATCH_START EXTRACT
-	int PATCH_START_SIZE = extract_word(PATCH_START_PTR,(PATCH_START_PTR[0]),(int)(4*64),(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)),0xe12fff1e,32); //bx lr end
-	//printf(">PATCH_START EXTRACT'd (%d) ARM opcodes",(int)PATCH_START_SIZE);
-	
-	//PATCH_HOOK_START EXTRACT
-	int PATCH_HOOK_START_SIZE = extract_word(PATCH_HOOK_START_PTR,(PATCH_HOOK_START_PTR[0]),(int)(4*64),(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)+(PATCH_START_SIZE*4)),0xe1a0f003,32); //mov pc,r3
-	//printf(">PATCH_HOOK_START EXTRACT'd (%d) ARM opcodes",(int)PATCH_HOOK_START_SIZE);
-	
-	//NDS7 RTC
-	int NDS7_RTC_PROCESS_SIZE = extract_word(NDS7_RTC_PROCESS_PTR,(NDS7_RTC_PROCESS_PTR[0]),(int)(4*64),(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)+(PATCH_START_SIZE*4)+(PATCH_HOOK_START_SIZE*4)),0xe12fff1e,32); //bx lr end
-	//printf(">NDS7_RTC_PROCESS EXTRACT'd (%d) ARM opcodes",(int)NDS7_RTC_PROCESS_SIZE);
-	
-	//mostly ARM code
-	//PATCH_BOOTCODE (entrypoint patch...)
-	writeu32gbarom(0x00ff8000,(u32*)(buf_wram),PATCH_BOOTCODE_SIZE*4);
-	
-	//PATCH_START (patch on entrypoint action...)
-	writeu32gbarom(0x00ff0000,(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)),PATCH_START_SIZE*4);
-	
-	//PATCH_HOOK_START (IRQ handler patch)
-	writeu32gbarom(0x00fe0000,(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)+(PATCH_START_SIZE*4)),PATCH_HOOK_START_SIZE*4);
-	
-	//NDS7_RTC_PROCESS (IRQ handler patch)
-	writeu32gbarom(0x00fe8000,(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)+(PATCH_START_SIZE*4)+(PATCH_HOOK_START_SIZE*4)),NDS7_RTC_PROCESS_SIZE*4);
-	
-	//ENTRYPOINT
-	//printf("\n ENTRYPOINT:(%x):[%x]",
-	//(unsigned int)PATCH_ENTRYPOINT[0],(unsigned int)PATCH_ENTRYPOINT[1]);
-	
-	printf("\n >ENTRYPOINT PATCH");
-	writeu32gbarom(0x00000204,(u32*)&PATCH_ENTRYPOINT[0],sizeof(u32)); //entrypoint opcode patch
-	writeu32gbarom(0x000000d0,(u32*)&PATCH_ENTRYPOINT[1],sizeof(u32)); //entrypoint new address
-	
-	//IRQ Handler@0x0:ldr pc,=PATCH_HOOK_START
-	writeu32gbarom(0x00000240,(u32*)&PATCH_ENTRYPOINT[2],sizeof(u32)); //IRQ redirect opcode
-	writeu32gbarom(0x00000244,(u32*)&PATCH_ENTRYPOINT[3],sizeof(u32)); //IRQ redirect @0x08FE0000 new address
-	
-	free(buf_wram);
-	closegbarom();
-	printf("File patched successfully. Power Off NDS.");
 	while (1)
 	{
+		scanKeys();
+		if(keysPressed() & KEY_A){
+			clrscr();
+			printf("     ");
+			
+			biospath[0] = 0;
+			savepath[0] = 0;
+			patchpath[0] = 0;
+			
+			char startPath[MAX_TGDSFILENAME_LENGTH+1];
+			strcpy(startPath,"/");
+			while( ShowBrowser((char *)startPath, (char *)curChosenBrowseFile) == true ){	//as long you keep using directories ShowBrowser will be true
+				//navigating DIRs here...
+			}
+			globalfileHandle = opengbarom(curChosenBrowseFile, "r+");
+			if (globalfileHandle != NULL){
+				printf("Please wait calculating CRC32...");
+				//CRC32 handling
+				unsigned long crc32 = -1;
+				int err;
+				err = Crc32_ComputeFile(globalfileHandle, &crc32 );
+				if (err == -1){
+					printf("Couldn't calculate CRC32.");
+					printf("Power Off NDS.");
+					while(1==1){}
+				}
+				if((u32)crc32 != (u32)0x5F35977E){
+					printf("Invalid file: crc32 = 0x%x ", crc32);
+					printf("Expected: crc32 = 0x%x ", 0x5F35977E);
+					printf("Power Off NDS.");
+					while(1==1){}
+				}
+			}
+			else {
+				printf("GBA File not found. Power Off NDS.");
+				while(1);
+			}
+
+			//int gbaofset=0;
+			//printf("gbaromread @ %x:[%x]",(unsigned int)(0x08000000+gbaofset),(unsigned int)readu32gbarom(gbaofset));
+
+			// u32 PATCH_BOOTCODE();
+			// u32 PATCH_START();
+			// u32 PATCH_HOOK_START();
+
+			//label asm patcher	
+			u32 * PATCH_BOOTCODE_PTR =((u32*)&PATCH_BOOTCODE);
+			u32 * PATCH_START_PTR =((u32*)&PATCH_START);
+			u32 * PATCH_HOOK_START_PTR =((u32*)&PATCH_HOOK_START);
+			u32 * NDS7_RTC_PROCESS_PTR =((u32*)&NDS7_RTC_PROCESS);
+			
+			//printf("PATCH_BOOTCODE[0]: (%x) ",(unsigned int)(PATCH_BOOTCODE_PTR[0]));
+			//printf("PATCH_START[0]: (%x) ",(unsigned int)(PATCH_START_PTR[0]));
+			//printf("PATCH_HOOK_START[0]: (%x) ",(unsigned int)(PATCH_HOOK_START_PTR[0]));
+			
+			u8* buf_wram = (u8*)malloc(1024*1024*1);
+			
+			//PATCH_BOOTCODE EXTRACT
+			int PATCH_BOOTCODE_SIZE = extract_word(PATCH_BOOTCODE_PTR,(PATCH_BOOTCODE_PTR[0]),(int)(4*64),(u32*)buf_wram,0xe1a0f00d,32); //mov pc,sp end
+			//printf(">PATCH_BOOTCODE EXTRACT'd (%d) opcodes",(int)PATCH_BOOTCODE_SIZE);
+			
+			//PATCH_START EXTRACT
+			int PATCH_START_SIZE = extract_word(PATCH_START_PTR,(PATCH_START_PTR[0]),(int)(4*64),(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)),0xe12fff1e,32); //bx lr end
+			//printf(">PATCH_START EXTRACT'd (%d) ARM opcodes",(int)PATCH_START_SIZE);
+			
+			//PATCH_HOOK_START EXTRACT
+			int PATCH_HOOK_START_SIZE = extract_word(PATCH_HOOK_START_PTR,(PATCH_HOOK_START_PTR[0]),(int)(4*64),(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)+(PATCH_START_SIZE*4)),0xe1a0f003,32); //mov pc,r3
+			//printf(">PATCH_HOOK_START EXTRACT'd (%d) ARM opcodes",(int)PATCH_HOOK_START_SIZE);
+			
+			//NDS7 RTC
+			int NDS7_RTC_PROCESS_SIZE = extract_word(NDS7_RTC_PROCESS_PTR,(NDS7_RTC_PROCESS_PTR[0]),(int)(4*64),(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)+(PATCH_START_SIZE*4)+(PATCH_HOOK_START_SIZE*4)),0xe12fff1e,32); //bx lr end
+			//printf(">NDS7_RTC_PROCESS EXTRACT'd (%d) ARM opcodes",(int)NDS7_RTC_PROCESS_SIZE);
+			
+			//mostly ARM code
+			//PATCH_BOOTCODE (entrypoint patch...)
+			writeu32gbarom(0x00ff8000,(u32*)(buf_wram),PATCH_BOOTCODE_SIZE*4);
+			
+			//PATCH_START (patch on entrypoint action...)
+			writeu32gbarom(0x00ff0000,(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)),PATCH_START_SIZE*4);
+			
+			//PATCH_HOOK_START (IRQ handler patch)
+			writeu32gbarom(0x00fe0000,(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)+(PATCH_START_SIZE*4)),PATCH_HOOK_START_SIZE*4);
+			
+			//NDS7_RTC_PROCESS (IRQ handler patch)
+			writeu32gbarom(0x00fe8000,(u32*)(buf_wram+(PATCH_BOOTCODE_SIZE*4)+(PATCH_START_SIZE*4)+(PATCH_HOOK_START_SIZE*4)),NDS7_RTC_PROCESS_SIZE*4);
+			
+			//ENTRYPOINT
+			//printf("\n ENTRYPOINT:(%x):[%x]",
+			//(unsigned int)PATCH_ENTRYPOINT[0],(unsigned int)PATCH_ENTRYPOINT[1]);
+			
+			printf("\n >ENTRYPOINT PATCH");
+			writeu32gbarom(0x00000204,(u32*)&PATCH_ENTRYPOINT[0],sizeof(u32)); //entrypoint opcode patch
+			writeu32gbarom(0x000000d0,(u32*)&PATCH_ENTRYPOINT[1],sizeof(u32)); //entrypoint new address
+			
+			//IRQ Handler@0x0:ldr pc,=PATCH_HOOK_START
+			writeu32gbarom(0x00000240,(u32*)&PATCH_ENTRYPOINT[2],sizeof(u32)); //IRQ redirect opcode
+			writeu32gbarom(0x00000244,(u32*)&PATCH_ENTRYPOINT[3],sizeof(u32)); //IRQ redirect @0x08FE0000 new address
+			
+			free(buf_wram);
+			closegbarom();
+			printf("File patched successfully. Power Off NDS.");
+			
+			while(1==1){}
+		}
+		
+		if (keysPressed() & KEY_SELECT){
+			menuShow();
+			scanKeys();
+			while(keysPressed() & KEY_SELECT){
+				scanKeys();
+			}
+		}
+		
 		handleARM9SVC();	/* Do not remove, handles TGDS services */
 		IRQVBlankWait();
 	}

@@ -21,17 +21,20 @@ USA
 #include "main.h"
 #include "biosTGDS.h"
 #include "spifwTGDS.h"
+#include "posixHandleTGDS.h"
 
 //---------------------------------------------------------------------------------
 int main(int _argc, sint8 **_argv) {
 //---------------------------------------------------------------------------------
 	/*			TGDS 1.5 Standard ARM7 Init code start	*/
 	installWifiFIFO();		
-	/*			TGDS 1.5 Standard ARM7 Init code end	*/
 	
 	//wait for VRAM D to be assigned from ARM9->ARM7 (ARM7 has load/store on byte/half/words on VRAM)
 	while (!(*((vuint8*)0x04000240) & 0x2));
 	ARM7DLDIInit();
+	
+	writePrintfBuffer7("TGDS ARM7.bin Boot OK!");
+	/*			TGDS 1.5 Standard ARM7 Init code end	*/
 	
 	powerON(POWER_SOUND);
 	REG_SOUNDCNT = SOUND_ENABLE | SOUND_VOL(0x7F);
