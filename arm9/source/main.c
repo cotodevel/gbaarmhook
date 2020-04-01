@@ -140,7 +140,7 @@ static inline void menuShow(){
 	printf("(Select): This menu. ");
 	printf("(A): Patch GBA Rom (CRC32:%x) ");
 	printf("Available heap memory: %d", getMaxRam());
-	printf("ARM7 Status: %s", getarm7DebugBuffer());
+	printarm7DebugBuffer();
 }
 
 int main(int _argc, sint8 **_argv) {
