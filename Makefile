@@ -79,6 +79,7 @@ export DIRS_ARM9_SRC = data/	\
 			source/	\
 			source/interrupts/	\
 			source/gui/	\
+			source/TGDSMemoryAllocator/	\
 			source/wnifilib/	\
 			source/fs_ext/	\
 			source/pu/ \
@@ -94,6 +95,7 @@ export DIRS_ARM9_HEADER = data/	\
 			source/	\
 			source/interrupts/	\
 			source/gui/	\
+			source/TGDSMemoryAllocator/	\
 			source/wnifilib/	\
 			source/fs_ext/	\
 			source/pu/ \

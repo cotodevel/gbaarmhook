@@ -30,6 +30,8 @@ USA
 #include "global_settings.h"
 #include "fileBrowse.h"
 #include "crc32.h"
+#include "posixHandleTGDS.h"
+#include "TGDSMemoryAllocator.h"
 
 char curChosenBrowseFile[MAX_TGDSFILENAME_LENGTH+1];
 char biospath[MAX_TGDSFILENAME_LENGTH+1];
@@ -149,7 +151,7 @@ int main(int _argc, sint8 **_argv) {
 	bool isTGDSCustomConsole = false;	//set default console or custom console: default console
 	GUI_init(isTGDSCustomConsole);
 	GUI_clear();
-
+	setTGDSMemoryAllocator(getProjectSpecificMemoryAllocatorSetup());
 	sint32 fwlanguage = (sint32)getLanguage();
 
 	printf("     ");
