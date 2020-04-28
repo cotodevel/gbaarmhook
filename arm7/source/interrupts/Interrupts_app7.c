@@ -81,7 +81,7 @@ __attribute__((section(".itcm")))
 #endif
 inline __attribute__((always_inline)) 
 void VblankUser(){
-	struct sIPCSharedTGDSSpecific * TGDSUSERIPC = (struct sIPCSharedTGDSSpecific *)TGDSIPCUserStartAddress;
+	
 	if(TGDSUSERIPC->frameCounter7 < 60){
 		TGDSUSERIPC->frameCounter7++;
 	}

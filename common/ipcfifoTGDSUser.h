@@ -21,11 +21,11 @@ USA
 //TGDS required version: IPC Version: 1.3
 
 //IPC FIFO Description: 
-//		struct sIPCSharedTGDS * TGDSIPC = TGDSIPCStartAddress; 														// Access to TGDS internal IPC FIFO structure. 		(ipcfifoTGDS.h)
-//		struct sIPCSharedTGDSSpecific * TGDSUSERIPC = (struct sIPCSharedTGDSSpecific *)TGDSIPCUserStartAddress;		// Access to TGDS Project (User) IPC FIFO structure	(ipcfifoTGDSUser.h)
+//		TGDSIPC 		= 	Access to TGDS internal IPC FIFO structure. 		(ipcfifoTGDS.h)
+//		TGDSUSERIPC		=	Access to TGDS Project (User) IPC FIFO structure	(ipcfifoTGDSUser.h)
 
-#ifndef __specific_shared_h__
-#define __specific_shared_h__
+#ifndef __ipcfifoTGDSUser_h__
+#define __ipcfifoTGDSUser_h__
 
 #include "dsregs.h"
 #include "dsregs_asm.h"
@@ -53,13 +53,15 @@ struct gbaheader_t{
 	u16 res;
 };
 
-struct sIPCSharedTGDSSpecific{
+typedef struct sIPCSharedTGDSSpecific{
 	uint32 frameCounter7;	//VBLANK counter7
 	uint32 frameCounter9;	//VBLANK counter9
 	uint32 * IPC_ADDR;
     uint8 * ROM;   		//pointer to ROM page
     int rom_size;   	//rom total size
-};
+}  IPCSharedTGDSSpecific	__attribute__((aligned (4)));
+
+#define TGDSUSERIPC ((IPCSharedTGDSSpecific volatile *)(0x027FF000 + TGDSIPCSize))
 
 
 //project specific IPC. tMyIPC is used by TGDS so don't overlap
