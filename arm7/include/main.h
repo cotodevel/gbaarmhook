@@ -20,7 +20,7 @@ USA
 #include "typedefsTGDS.h"
 #include "dsregs.h"
 #include "dsregs_asm.h"
-
+#include "soundTGDS.h"
 #endif
 
 
@@ -34,7 +34,11 @@ extern u8* soundbuffB;
 
 extern u8 DMA_A_TIMERSEL;
 extern u8 DMA_B_TIMERSEL;
-
+extern u16 strpcmL0Buf[WAV_READ_SIZE];
+extern u16 strpcmL1Buf[WAV_READ_SIZE];
+extern u16 strpcmR0Buf[WAV_READ_SIZE];
+extern u16 strpcmR1Buf[WAV_READ_SIZE];
+extern void initSoundStreamUser();
 #ifdef __cplusplus
 }
 #endif
