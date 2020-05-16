@@ -65,4 +65,15 @@ __attribute__((section(".itcm")))
 void HandleFifoEmptyWeakRef(uint32 cmd1,uint32 cmd2){
 }
 
+//Callback update sample implementation
+#ifdef ARM9
+void updateSoundContextStreamPlaybackUser(u32 srcFrmt){
+	
+}
+
+void freeSound()
+{
+	
+}
+#endif
 //project specific stuff
