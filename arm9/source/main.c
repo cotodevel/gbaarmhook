@@ -32,6 +32,7 @@ USA
 #include "crc32.h"
 #include "posixHandleTGDS.h"
 #include "TGDSMemoryAllocator.h"
+#include "ipcfifoTGDSUser.h"
 
 char curChosenBrowseFile[MAX_TGDSFILENAME_LENGTH+1];
 char biospath[MAX_TGDSFILENAME_LENGTH+1];
