@@ -5,6 +5,7 @@
 #include "dsregs.h"
 #include "dsregs_asm.h"
 #include "fatfslayerTGDS.h"
+#include "utilsTGDS.h"
 
 #endif
 
@@ -23,6 +24,7 @@ extern char curChosenBrowseFile[MAX_TGDSFILENAME_LENGTH+1];
 extern char biospath[MAX_TGDSFILENAME_LENGTH+1];
 extern char savepath[MAX_TGDSFILENAME_LENGTH+1];
 extern char patchpath[MAX_TGDSFILENAME_LENGTH+1];
+extern int main(int argc, char argv[argvItems][MAX_TGDSFILENAME_LENGTH]);
 
 #ifdef __cplusplus
 }
