@@ -22,6 +22,7 @@ USA
 #include "biosTGDS.h"
 #include "spifwTGDS.h"
 #include "posixHandleTGDS.h"
+#include "biosTGDS.h"
 
 
 //---------------------------------------------------------------------------------
