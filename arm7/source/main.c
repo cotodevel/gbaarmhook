@@ -28,18 +28,18 @@ USA
 //---------------------------------------------------------------------------------
 int main(int _argc, sint8 **_argv) {
 //---------------------------------------------------------------------------------
-	/*			TGDS 1.5 Standard ARM7 Init code start	*/
-	installWifiFIFO();		
-	
+	/*			TGDS 1.6 Standard ARM7 Init code start	*/
 	//wait for VRAM D to be assigned from ARM9->ARM7 (ARM7 has load/store on byte/half/words on VRAM)
 	while (!(*((vuint8*)0x04000240) & 0x2));
-
-	
+		
+	installWifiFIFO();		
+		
 	int argBuffer[MAXPRINT7ARGVCOUNT];
 	memset((unsigned char *)&argBuffer[0], 0, sizeof(argBuffer));
-	writeDebugBuffer7("TGDS ARM7.bin Boot OK! ", 0, (int*)&argBuffer[0]);
-	
-	/*			TGDS 1.5 Standard ARM7 Init code end	*/
+	argBuffer[0] = 0xc070ffff;
+	writeDebugBuffer7("TGDS ARM7.bin Boot OK!", 1, (int*)&argBuffer[0]);
+		
+	/*			TGDS 1.6 Standard ARM7 Init code end	*/
 	
 	powerON(POWER_SOUND);
 	REG_SOUNDCNT = SOUND_ENABLE | SOUND_VOL(0x7F);
