@@ -22,8 +22,8 @@ USA
 //TGDS required version: IPC Version: 1.3
 
 //IPC FIFO Description: 
-//		getsIPCSharedTGDS() 		= 	Access to TGDS internal IPC FIFO structure. 		(ipcfifoTGDS.h)
-//		getsIPCSharedTGDSSpecific()	=	Access to TGDS Project (User) IPC FIFO structure	(ipcfifoTGDSUser.h)
+//		struct sIPCSharedTGDS * TGDSIPC = TGDSIPCStartAddress; 														// Access to TGDS internal IPC FIFO structure. 		(ipcfifoTGDS.h)
+//		struct sIPCSharedTGDSSpecific * TGDSUSERIPC = (struct sIPCSharedTGDSSpecific *)TGDSIPCUserStartAddress;		// Access to TGDS Project (User) IPC FIFO structure	(ipcfifoTGDSUser.h)
 
 #include "main.h"
 #include "typedefsTGDS.h"
@@ -48,7 +48,7 @@ struct gbaheader_t gbaheader;
 __attribute__((section(".itcm")))
 #endif
 struct sIPCSharedTGDSSpecific* getsIPCSharedTGDSSpecific(){
-	struct sIPCSharedTGDSSpecific* sIPCSharedTGDSSpecificInst = (__attribute__((packed)) struct sIPCSharedTGDSSpecific*)(getUserIPCAddress());
+	struct sIPCSharedTGDSSpecific* sIPCSharedTGDSSpecificInst = (__attribute__((packed)) struct sIPCSharedTGDSSpecific*)(TGDSIPCUserStartAddress);
 	return sIPCSharedTGDSSpecificInst;
 }
 
@@ -71,30 +71,6 @@ void HandleFifoNotEmptyWeakRef(uint32 cmd1,uint32 cmd2){
 __attribute__((section(".itcm")))
 #endif
 void HandleFifoEmptyWeakRef(uint32 cmd1,uint32 cmd2){
-}
-
-#ifdef ARM9
-//Callback update sample implementation
-
-__attribute__((section(".itcm")))
-void updateSoundContextStreamPlaybackUser(u32 srcFrmt){
-}
-#endif
-
-void setupSoundUser(u32 srcFrmtInst){
-	#ifdef ARM7
-	#endif
-	
-	#ifdef ARM9
-	#endif
-}
-
-void stopSoundUser(u32 srcFrmt){
-	#ifdef ARM7
-	#endif
-	
-	#ifdef ARM9
-	#endif
 }
 
 //project specific stuff

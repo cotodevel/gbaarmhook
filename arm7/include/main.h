@@ -34,7 +34,6 @@ extern u8* soundbuffB;
 
 extern u8 DMA_A_TIMERSEL;
 extern u8 DMA_B_TIMERSEL;
-extern void initSoundStreamUser();
 #ifdef __cplusplus
 }
 #endif

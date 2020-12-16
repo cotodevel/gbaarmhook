@@ -21,8 +21,8 @@ USA
 //TGDS required version: IPC Version: 1.3
 
 //IPC FIFO Description: 
-//		getsIPCSharedTGDS() 		= 	Access to TGDS internal IPC FIFO structure. 		(ipcfifoTGDS.h)
-//		getsIPCSharedTGDSSpecific()	=	Access to TGDS Project (User) IPC FIFO structure	(ipcfifoTGDSUser.h)
+//		struct sIPCSharedTGDS * TGDSIPC = TGDSIPCStartAddress; 														// Access to TGDS internal IPC FIFO structure. 		(ipcfifoTGDS.h)
+//		struct sIPCSharedTGDSSpecific * TGDSUSERIPC = (struct sIPCSharedTGDSSpecific *)TGDSIPCUserStartAddress;		// Access to TGDS Project (User) IPC FIFO structure	(ipcfifoTGDSUser.h)
 
 #ifndef __ipcfifoTGDSUser_h__
 #define __ipcfifoTGDSUser_h__
@@ -63,8 +63,8 @@ typedef struct sIPCSharedTGDSSpecific{
 
 
 //project specific IPC. tMyIPC is used by TGDS so don't overlap
-#define SpecificIPCUnalign ((volatile tSpecificIPC*)(getUserIPCAddress()))
-#define SpecificIPCAlign ((volatile struct sAlignedIPCProy*)(getUserIPCAddress()+(sizeof(tSpecificIPC))))
+#define SpecificIPCUnalign ((volatile tSpecificIPC*)(TGDSIPCUserStartAddress))
+#define SpecificIPCAlign ((volatile struct sAlignedIPCProy*)(TGDSIPCUserStartAddress+(sizeof(tSpecificIPC))))
 
 //#define testGBAEMU4DSFSCode	//enable for generating a file you can later test in any emu, that file is created (you pick from the list) is using the same gbaemu4ds streaming driver.
 
