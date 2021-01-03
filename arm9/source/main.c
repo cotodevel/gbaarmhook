@@ -190,7 +190,7 @@ int main(int argc, char argv[argvItems][MAX_TGDSFILENAME_LENGTH]) {
 	while (1)
 	{
 		scanKeys();
-		if(keysPressed() & KEY_A){
+		if(keysDown() & KEY_A){
 			clrscr();
 			printf("     ");
 			
@@ -294,10 +294,10 @@ int main(int argc, char argv[argvItems][MAX_TGDSFILENAME_LENGTH]) {
 			while(1==1){}
 		}
 		
-		if (keysPressed() & KEY_SELECT){
+		if (keysDown() & KEY_SELECT){
 			menuShow();
 			scanKeys();
-			while(keysPressed() & KEY_SELECT){
+			while(keysDown() & KEY_SELECT){
 				scanKeys();
 			}
 		}
