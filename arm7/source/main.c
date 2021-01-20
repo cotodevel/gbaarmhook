@@ -23,10 +23,12 @@ USA
 #include "spifwTGDS.h"
 #include "posixHandleTGDS.h"
 #include "biosTGDS.h"
-
+#include "eventsTGDS.h"
+#include "wifi_arm7.h"
+#include "powerTGDS.h"
 
 //---------------------------------------------------------------------------------
-int main(int _argc, sint8 **_argv) {
+int main(int argc, char **argv) {
 //---------------------------------------------------------------------------------
 	/*			TGDS 1.6 Standard ARM7 Init code start	*/
 	//wait for VRAM D to be assigned from ARM9->ARM7 (ARM7 has load/store on byte/half/words on VRAM)

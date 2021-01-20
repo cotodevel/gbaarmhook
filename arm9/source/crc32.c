@@ -44,7 +44,7 @@
  *     - file errors
 \*----------------------------------------------------------------------------*/
 /*
-int main( int argc, const char *argv[] )
+int main(int argc, char **argv)
 {
     FILE *file = NULL;
     const char *filename;
