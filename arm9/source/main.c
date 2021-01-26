@@ -165,7 +165,7 @@ int main(int argc, char **argv){
 	printf("              ");
 	printf("              ");
 	
-	bool isCustomTGDSMalloc = false;
+	bool isCustomTGDSMalloc = true;
 	setTGDSMemoryAllocator(getProjectSpecificMemoryAllocatorSetup(TGDS_ARM7_MALLOCSTART, TGDS_ARM7_MALLOCSIZE, isCustomTGDSMalloc));
 	sint32 fwlanguage = (sint32)getLanguage();
 	#ifdef ARM7_DLDI
