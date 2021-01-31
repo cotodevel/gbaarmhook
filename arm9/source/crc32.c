@@ -19,9 +19,10 @@
  *  v2.0.0: rewrote to use memory buffer & static table, 2006-04-29.
 \*----------------------------------------------------------------------------*/
 
-#include "crc32.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "crc32.h"
+#include "posixHandleTGDS.h"
 
 /*----------------------------------------------------------------------------*\
  *  Local functions
@@ -103,9 +104,8 @@ ERR_EXIT:
 
 int Crc32_ComputeFile( FILE *file, unsigned long *outCrc32 )
 {
-	#define CRC_BUFFER_SIZE  (int)(1024*1024*3)
-    //unsigned char buf[CRC_BUFFER_SIZE];
-    char * buf = malloc(CRC_BUFFER_SIZE);
+	#define CRC_BUFFER_SIZE  (int)(1024*256)
+    char * buf = TGDSARM9Malloc(CRC_BUFFER_SIZE);
 	size_t bufLen;
     /** accumulate crc32 from file **/
     *outCrc32 = 0;
@@ -122,7 +122,7 @@ int Crc32_ComputeFile( FILE *file, unsigned long *outCrc32 )
         }
         *outCrc32 = Crc32_ComputeBuf(*outCrc32, buf, bufLen );
     }
-	free(buf);
+	TGDSARM9Free(buf);
     return( 0 );
 
     /** error exit **/

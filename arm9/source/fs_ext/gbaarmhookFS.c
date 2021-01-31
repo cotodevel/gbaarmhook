@@ -9,30 +9,27 @@
 #include "rom_pl.h"
 #endif
 
-FILE* globalfileHandle=NULL;
-int globalfileSize=0;
-
-u8 stream_readu8(u32 pos){
+u8 stream_readu8(u32 pos, FILE * curFileHandle){
 	#ifndef ROMTEST
-		return readu8gbarom(pos);
+		return readu8gbarom(pos, curFileHandle);
 	#endif
 	#ifdef ROMTEST
 		return (u8)*((u8*)&rom_pl[0] + ((pos % (32*1024*1024))/1) );
 	#endif
 }
 
-u16 stream_readu16(u32 pos){
+u16 stream_readu16(u32 pos, FILE * curFileHandle){
 	#ifndef ROMTEST
-		return readu16gbarom(pos);
+		return readu16gbarom(pos, curFileHandle);
 	#endif
 	#ifdef ROMTEST
 		return (u16)*((u16*)&rom_pl[0] + ((pos % (32*1024*1024))/2) );
 	#endif
 }
 
-u32 stream_readu32(u32 pos){
+u32 stream_readu32(u32 pos, FILE * curFileHandle){
 	#ifndef ROMTEST
-		return readu32gbarom(pos);
+		return readu32gbarom(pos, curFileHandle);
 	#endif
 	#ifdef ROMTEST
 		return (u32)*((u32*)&rom_pl[0] + ((pos % (32*1024*1024))/4) );
@@ -47,94 +44,72 @@ FILE * opengbarom(const char * filename, char * fopenArg){
 	return fh;
 }
 
-u32 closegbarom(){
-	if(!globalfileHandle){
-		printf("FATAL: GBAFH isn't open");
-		return 1;
-	}
-	fclose(globalfileHandle);
-	printf("GBARom closed!");
+u32 closegbarom(FILE * curFileHandle){
+	fclose(curFileHandle);
 	return 0;
 }
 
-u32 readu32gbarom(u32 offset){
+u32 readu32gbarom(u32 offset, FILE * curFileHandle){
 	u32 value = 0;
-	if(!globalfileHandle){
-		printf("FATAL: GBAFH isn't open");
+	if(!curFileHandle){
+		return -1;
 	}
-	fseek(globalfileHandle,(long int)offset, SEEK_SET); 					//1) from start of file where (offset)
-	int sizeread=fread((void*)&value, 1, sizeof(value), globalfileHandle); //2) perform read (512bytes read (128 reads))
-	if (sizeread != sizeof(value)){
-		printf("FATAL: GBAREAD isn't (%d) bytes",(int)sizeof(value));
-	}
+	fseek(curFileHandle, (long int)offset, SEEK_SET); 					//1) from start of file where (offset)
+	fread((void*)&value, 1, sizeof(value), curFileHandle); 				//2) perform read
 	return value;
 }
 
-u16 readu16gbarom(u32 offset){
+u16 readu16gbarom(u32 offset, FILE * curFileHandle){
 	u16 value = 0;
-	if(!globalfileHandle){
-		printf("FATAL: GBAFH isn't open");
+	if(!curFileHandle){
+		return -1;
 	}
-	fseek(globalfileHandle,(long int)offset, SEEK_SET); 					//1) from start of file where (offset)
-	int sizeread=fread((void*)&value, 1, sizeof(value), globalfileHandle); //2) perform read (512bytes read (128 reads))
-	if (sizeread != sizeof(value)){
-		printf("FATAL: GBAREAD isn't (%d) bytes",(int)sizeof(value));
-	}
+	fseek(curFileHandle, (long int)offset, SEEK_SET); 					//1) from start of file where (offset)
+	fread((void*)&value, 1, sizeof(value), curFileHandle); 				//2) perform read
 	return value;
 }
 
-u8 readu8gbarom(u32 offset){
+u8 readu8gbarom(u32 offset, FILE * curFileHandle){
 	u8 value = 0;
-	if(!globalfileHandle){
-		printf("FATAL: GBAFH isn't open");
+	if(!curFileHandle){
+		return -1;
 	}
-	fseek(globalfileHandle,(long int)offset, SEEK_SET); 					//1) from start of file where (offset)
-	int sizeread=fread((void*)&value, 1, sizeof(value), globalfileHandle); //2) perform read (512bytes read (128 reads))
-	if (sizeread != sizeof(value)){
-		printf("FATAL: GBAREAD isn't (%d) bytes",(int)sizeof(value));
-	}
+	fseek(curFileHandle, (long int)offset, SEEK_SET); 					//1) from start of file where (offset)
+	fread((void*)&value, 1, sizeof(value), curFileHandle); 				//2) perform read
 	return value;
 }
 
-u16 writeu16gbarom(int offset,u16 * buf_in, int size_elem){
-	if(!globalfileHandle){
-		printf("FATAL: GBAFH isn't open");
-		return 1;
+int writeu16gbarom(int offset, u16 * buf_in, int size_elem, FILE * curFileHandle){
+	if(!curFileHandle){
+		return -1;
 	}
-	fseek(globalfileHandle,(long int)offset, SEEK_SET); 					//1) from start of file where (offset)
-	int sizewritten=fwrite((u16*)buf_in, 1, size_elem, globalfileHandle); //2) perform read (512bytes read (128 reads))
-	if (sizewritten!=size_elem){
-		printf("FATAL: GBAWRITE isn't (%d) bytes, instead: (%x) bytes",(int)size_elem,(int)sizewritten);
+	fseek(curFileHandle,(long int)offset, SEEK_SET); 					//1) from start of file where (offset)
+	int sizewritten=fwrite((u16*)buf_in, 1, size_elem, curFileHandle); //2) perform read (512bytes read (128 reads))
+	if (sizewritten != size_elem){
+		return -1;
 	}
-	else{
-		printf("write ok:%x",(unsigned int)buf_in[0x0]);
-	}
-	return 0;
+	return sizewritten;
 }
 
-u32 writeu32gbarom(int offset,u32 * buf_in,int size_elem){
-	if(!globalfileHandle){
-		printf("FATAL: GBAFH isn't open");
-		return 1;
+int writeu32gbarom(int offset, u32 * buf_in, int size_elem, FILE * curFileHandle){
+	if(!curFileHandle){
+		return -1;
 	}
-	fseek(globalfileHandle,(long int)offset, SEEK_SET); 					//1) from start of file where (offset)
-	int sizewritten=fwrite((u32*)buf_in, 1, size_elem, globalfileHandle); //2) perform read (512bytes read (128 reads))
-	if (sizewritten!=size_elem){
-			printf("FATAL: GBAWRITE isn't (%d) bytes, instead: (%x) bytes",(int)size_elem,(int)sizewritten);
-		}
-	else{
-		printf("write ok:%x",(unsigned int)buf_in[0x0]);
+	fseek(curFileHandle,(long int)offset, SEEK_SET); 					//1) from start of file where (offset)
+	int sizewritten=fwrite((u32*)buf_in, 1, size_elem, curFileHandle); //2) perform read (512bytes read (128 reads))
+	if (sizewritten != size_elem){
+		return -1;
 	}
-	return 0;
+	return sizewritten;
 }
 
-int getfilesizegbarom(){
-	if(!globalfileHandle){
-		printf("FATAL: GBAFH isn't open");
-		return 0;
+//Also resets the file internal offset to zero
+int getfilesizegbarom(FILE * curFileHandle){
+	if(!curFileHandle){
+		return -1;
 	}
-	fseek(globalfileHandle,0,SEEK_END);
-	int filesize = ftell(globalfileHandle);
-	fseek(globalfileHandle,0,SEEK_SET);
+	fseek(curFileHandle, 0, SEEK_END);
+	int filesize = ftell(curFileHandle);
+	fseek(curFileHandle, 0, SEEK_SET);
 	return filesize;
 }

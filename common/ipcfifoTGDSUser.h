@@ -24,49 +24,24 @@ USA
 //		struct sIPCSharedTGDS * TGDSIPC = TGDSIPCStartAddress; 														// Access to TGDS internal IPC FIFO structure. 		(ipcfifoTGDS.h)
 //		struct sIPCSharedTGDSSpecific * TGDSUSERIPC = (struct sIPCSharedTGDSSpecific *)TGDSIPCUserStartAddress;		// Access to TGDS Project (User) IPC FIFO structure	(ipcfifoTGDSUser.h)
 
+//inherits what is defined in: ipcfifoTGDS.h
 #ifndef __ipcfifoTGDSUser_h__
 #define __ipcfifoTGDSUser_h__
 
 #include "dsregs.h"
 #include "dsregs_asm.h"
-#include "typedefsTGDS.h"
 #include "ipcfifoTGDS.h"
 #include "dswnifi.h"
-#include "utilsTGDS.h"
+#include "posixHandleTGDS.h"
 
-//gba dma fifo
-#define INTERNAL_FIFO_SIZE 	(sint32)(16)	//each DMA
-#define FIFO_BUFFER_SIZE	(sint32)(4)		//FIFO_A/FIFO_B = 4 Bytes
-
-struct gbaheader_t{
-	u32 entryPoint;
-	u8 logo[156];
-	char title[0xC];
-	char gamecode[0x4];
-	char makercode[0x2];
-	u8 is96h;
-	u8 unitcode;
-	u8 devicecode;
-	u8 unused[7];
-	u8 version;
-	u8 complement;
-	u16 res;
-};
-
-typedef struct sIPCSharedTGDSSpecific{
+//---------------------------------------------------------------------------------
+struct sIPCSharedTGDSSpecific {
+//---------------------------------------------------------------------------------
 	uint32 frameCounter7;	//VBLANK counter7
 	uint32 frameCounter9;	//VBLANK counter9
-	uint32 * IPC_ADDR;
-    uint8 * ROM;   		//pointer to ROM page
-    int rom_size;   	//rom total size
-}  IPCSharedTGDSSpecific	__attribute__((aligned (4)));
+};
 
-
-//project specific IPC. tMyIPC is used by TGDS so don't overlap
-#define SpecificIPCUnalign ((volatile tSpecificIPC*)(TGDSIPCUserStartAddress))
-#define SpecificIPCAlign ((volatile struct sAlignedIPCProy*)(TGDSIPCUserStartAddress+(sizeof(tSpecificIPC))))
-
-//#define testGBAEMU4DSFSCode	//enable for generating a file you can later test in any emu, that file is created (you pick from the list) is using the same gbaemu4ds streaming driver.
+#ifdef ARM9
 
 //TGDS Memory Layout ARM7/ARM9 Cores
 #define TGDS_ARM7_MALLOCSTART (u32)(0x06000000)
@@ -75,18 +50,17 @@ typedef struct sIPCSharedTGDSSpecific{
 
 #endif
 
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifdef ARM9
-extern struct gbaheader_t gbaheader;
-#endif
-
-extern struct sIPCSharedTGDSSpecific* getsIPCSharedTGDSSpecific();
 //NOT weak symbols : the implementation of these is project-defined (here)
 extern void HandleFifoNotEmptyWeakRef(uint32 cmd1,uint32 cmd2);
 extern void HandleFifoEmptyWeakRef(uint32 cmd1,uint32 cmd2);
+
+extern struct sIPCSharedTGDSSpecific* getsIPCSharedTGDSSpecific();
 
 #ifdef __cplusplus
 }

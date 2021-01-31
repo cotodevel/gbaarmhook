@@ -1,16 +1,25 @@
 ![ToolchainGenericDS](img/TGDS-Logo.png)
 
-This is the Toolchain Generic DS gbaARMHook project:
 
-Compile Toolchain: To compile this project you will need to follow the steps at https://bitbucket.org/Coto88/toolchaingenericds : Then simply extract the project somewhere.
+This is the gbaARMHook project:
 
-Compile this project: Open msys, through msys commands head to the directory your extracted this project. Then write: make clean make
+1.	Compile Toolchain:
+To compile this project you will need to follow the steps at https://bitbucket.org/Coto88/toolchaingenericds :
+Then simply extract the project somewhere.
 
-After compiling, run the example in NDS.
+2.	Compile this project: 
+Open msys, through msys commands head to the directory your extracted this project.
+Then write:
+make clean <enter>
+make <enter>
+
+After compiling, run the example in NDS. 
 
 Project Specific description:
+A Woopsi UI + TGDS SDK template for UI control handling on the NintendoDS. 
+Also plays WAV/AD-PCM (Intel) files from the directory!
 
-Story: Because I tried to reach in NDS (gba mode) the RTC. And of course... the reads would return 0xFF (iirc), which means, the RTC in gbamode is mapped to GBA cartridge.
+Because I tried to reach in NDS (gba mode) the RTC. And of course... the reads would return 0xFF (iirc), which means, the RTC in gbamode is mapped to GBA cartridge.
 
 This is a nds homebrew that patches the VBLANK Irq handler of GBA file:
 Pokèmon Zafiro (SPA)
@@ -23,5 +32,7 @@ You can write your ROP code here. Remember to save and restore context according
 Put the above file in sd:/gba/ folder. Compile the sources, it will generate a file called gbaARMHook.nds, copy to sd.
 Run gbaARMHook.nds from any slot 1 based cart. After a while, you will see onscreen: "File patched successfully. Power Off NDS.", by then, it's safe to turn off the DS.
 Then, the new patched gba file has the ROP code integrated. And it works in real hardware or emulator.
+
+Note: UI Controls experimental.
 
 Coto

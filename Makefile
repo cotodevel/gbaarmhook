@@ -19,8 +19,9 @@
 #TGDS1.6 compatible Makefile
 
 #ToolchainGenericDS specific: Use Makefiles from either TGDS, or custom
+#Note: Woopsi template mostly targets ARM9 SDK. Thus the default ARM7 template is used
 export SOURCE_MAKEFILE7 = default
-export SOURCE_MAKEFILE9 = default
+export SOURCE_MAKEFILE9 = custom
 
 #Translate paths to windows with forward slashes
 cpath := $(shell pwd)
@@ -66,7 +67,7 @@ export DIRS_ARM7_SRC = source/	\
 			source/interrupts/	\
 			../common/	\
 			../common/templateCode/source/	\
-			../common/templateCode/data/arm7/		
+			../common/templateCode/data/arm7/	
 			
 export DIRS_ARM7_HEADER = source/	\
 			source/interrupts/	\
@@ -83,15 +84,14 @@ export DIRS_ARM9_SRC = data/	\
 			source/interrupts/	\
 			source/gui/	\
 			source/TGDSMemoryAllocator/	\
-			source/wnifilib/	\
 			source/fs_ext/	\
 			source/pu/ \
 			source/util/ \
 			source/armstorm/ \
 			../common/	\
 			../common/templateCode/source/	\
-			../common/templateCode/data/arm9/		
-
+			../common/templateCode/data/arm9/	
+			
 export DIRS_ARM9_HEADER = data/	\
 			build/	\
 			include/	\
@@ -99,16 +99,15 @@ export DIRS_ARM9_HEADER = data/	\
 			source/interrupts/	\
 			source/gui/	\
 			source/TGDSMemoryAllocator/	\
-			source/wnifilib/	\
 			source/fs_ext/	\
 			source/pu/ \
 			source/util/ \
 			source/armstorm/ \
 			../common/	\
 			../common/templateCode/source/	\
-			../common/templateCode/data/arm9/		\
+			../common/templateCode/data/arm9/	\
 			../$(PosIndCodeDIR_FILENAME)/$(DIR_ARM9)/include/
-
+			
 # Build Target(s)	(both processors here)
 all: $(EXECUTABLE_FNAME)
 #all:	debug
@@ -131,7 +130,7 @@ ifeq ($(SOURCE_MAKEFILE9),default)
 	cp	-r	$(TARGET_LIBRARY_MAKEFILES_SRC9_NOFPIC)	$(CURDIR)/$(DIR_ARM9)
 endif
 	$(MAKE)	-R	-C	$(DIR_ARM9)/
-
+	
 $(EXECUTABLE_FNAME)	:	compile
 	-@echo 'ndstool begin'
 	$(NDSTOOL)	-v	-c $@	-7  $(CURDIR)/arm7/$(BINSTRIP_RULE_7)	-e7  0x03800000	-9 $(CURDIR)/arm9/$(BINSTRIP_RULE_9) -e9  0x02000000	-b	icon.bmp "ToolchainGenericDS SDK;$(TGDSPROJECTNAME) NDS Binary; "

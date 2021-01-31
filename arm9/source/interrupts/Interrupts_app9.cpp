@@ -20,15 +20,15 @@ USA
 
 #include "InterruptsARMCores_h.h"
 #include "ipcfifoTGDSUser.h"
+#include "consoleTGDS.h"
 #include "dsregs_asm.h"
 #include "main.h"
 #include "keypadTGDS.h"
-#include "interrupts.h"
-#include "utilsTGDS.h"
-#include "spifwTGDS.h"
-
 
 //User Handler Definitions
+#include "woopsifuncs.h"
+#include "WoopsiTemplate.h"
+
 #ifdef ARM9
 __attribute__((section(".itcm")))
 #endif
@@ -45,49 +45,51 @@ void IpcSynchandlerUser(uint8 ipcByte){
 __attribute__((section(".itcm")))
 #endif
 void Timer0handlerUser(){
+
 }
 
 #ifdef ARM9
 __attribute__((section(".itcm")))
 #endif
 void Timer1handlerUser(){
+
 }
 
 #ifdef ARM9
 __attribute__((section(".itcm")))
 #endif
 void Timer2handlerUser(){
+
 }
 
 #ifdef ARM9
 __attribute__((section(".itcm")))
 #endif
 void Timer3handlerUser(){
+
 }
 
 #ifdef ARM9
 __attribute__((section(".itcm")))
 #endif
 void HblankUser(){
+
 }
 
 #ifdef ARM9
 __attribute__((section(".itcm")))
 #endif
 void VblankUser(){
-	struct sIPCSharedTGDSSpecific* TGDSUSERIPC = getsIPCSharedTGDSSpecific();
-	if(TGDSUSERIPC->frameCounter9 < 60){
-		TGDSUSERIPC->frameCounter9++;
-	}
-	else{
-		TGDSUSERIPC->frameCounter9 = 0;
-	}
+	woopsiVblFunc();
+	
+	//Timing reserved for 2D/3D rendering
 }
 
 #ifdef ARM9
 __attribute__((section(".itcm")))
 #endif
 void VcounterUser(){
+	
 }
 
 //Note: this event is hardware triggered from ARM7, on ARM9 a signal is raised through the FIFO hardware
@@ -95,7 +97,9 @@ void VcounterUser(){
 __attribute__((section(".itcm")))
 #endif
 void screenLidHasOpenedhandlerUser(){
-	
+	if(WoopsiTemplateProc != NULL){
+		WoopsiTemplateProc->handleLidOpen();
+	}
 }
 
 //Note: this event is hardware triggered from ARM7, on ARM9 a signal is raised through the FIFO hardware
@@ -103,5 +107,7 @@ void screenLidHasOpenedhandlerUser(){
 __attribute__((section(".itcm")))
 #endif
 void screenLidHasClosedhandlerUser(){
-	
+	if(WoopsiTemplateProc != NULL){
+		WoopsiTemplateProc->handleLidClosed();
+	}
 }

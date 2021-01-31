@@ -28,12 +28,9 @@ USA
 extern "C" {
 #endif
 
-extern bool vblank_gba_period;
-extern u8* soundbuffA;
-extern u8* soundbuffB;
+extern int main(int argc, char **argv);
 
-extern u8 DMA_A_TIMERSEL;
-extern u8 DMA_B_TIMERSEL;
 #ifdef __cplusplus
 }
 #endif
+
