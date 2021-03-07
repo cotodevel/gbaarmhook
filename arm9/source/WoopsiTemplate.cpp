@@ -22,7 +22,7 @@
 __attribute__((section(".itcm")))
 WoopsiTemplate * WoopsiTemplateProc = NULL;
 
-void WoopsiTemplate::startup(int argc, char **argv) {
+void WoopsiTemplate::startup(int argc, char **argv) __attribute__ ((optnone)) {
 	
 	Rect rect;
 
@@ -111,7 +111,7 @@ void WoopsiTemplate::waitForAOrTouchScreenButtonMessage(MultiLineTextBox* thisLi
 	}
 }
 
-void WoopsiTemplate::handleValueChangeEvent(const GadgetEventArgs& e) {
+void WoopsiTemplate::handleValueChangeEvent(const GadgetEventArgs& e) __attribute__ ((optnone)) {
 
 	// Did a gadget fire this event?
 	if (e.getSource() != NULL) {
@@ -124,6 +124,28 @@ void WoopsiTemplate::handleValueChangeEvent(const GadgetEventArgs& e) {
 			memset(currentFileChosen, 0, sizeof(currentFileChosen));
 			strObj.copyToCharArray(currentFileChosen);
 			
+			//Boot .NDS file! (homebrew only)
+			char tmpName[256];
+			char ext[256];
+			strcpy(tmpName, currentFileChosen);
+			separateExtension(tmpName, ext);
+			strlwr(ext);
+			if(strncmp(ext,".nds", 4) == 0){
+ 				TGDSMultibootRunNDSPayload(currentFileChosen);
+ 			}			
+			else if(strncmp(ext,".bin", 4) == 0){
+				int argCount = 2;	
+				strcpy(&args[0][0], TGDSPROJECTNAME);	//Arg0: Parent TGDS Project name
+				strcpy(&args[1][0], currentFileChosen);	//Arg1: self TGDS-LinkedModule filename
+				
+				int i = 0;
+				for(i = 0; i < argCount; i++){
+					argvs[i] = (char*)&args[i][0];
+				}
+				
+				TGDSProjectRunLinkedModule(currentFileChosen, argCount, argvs, TGDSPROJECTNAME);
+			}
+
 			//Create a destroyable Textbox 
 			Rect rect;
 			_fileScreen->getClientRect(rect);
@@ -171,7 +193,7 @@ void WoopsiTemplate::handleValueChangeEvent(const GadgetEventArgs& e) {
 					//_MultiLineTextBoxLogger->appendText("PATCH_START[0]: (%x) ",(unsigned int)(PATCH_START_PTR[0]));
 					//_MultiLineTextBoxLogger->appendText("PATCH_HOOK_START[0]: (%x) ",(unsigned int)(PATCH_HOOK_START_PTR[0]));
 					
-					u8* buf_wram = (u8*)TGDSARM9Malloc(1024*256);
+					u8* buf_wram = (u8*)TGDSARM9Malloc(1024*192);
 					
 					//PATCH_BOOTCODE EXTRACT
 					int PATCH_BOOTCODE_SIZE = extract_word(PATCH_BOOTCODE_PTR,(PATCH_BOOTCODE_PTR[0]),(int)(4*64),(u32*)buf_wram,0xe1a0f00d,32); //mov pc,sp end
@@ -255,7 +277,7 @@ void WoopsiTemplate::handleLidOpen() {
 	}
 }
 
-void WoopsiTemplate::handleClickEvent(const GadgetEventArgs& e) {
+void WoopsiTemplate::handleClickEvent(const GadgetEventArgs& e) __attribute__ ((optnone)) {
 	switch (e.getSource()->getRefcon()) {
 		//_Index Event
 		case 2:{
@@ -318,7 +340,7 @@ char currentFileChosen[256+1];
 
 //Called once Woopsi events are ended: TGDS Main Loop
 __attribute__((section(".itcm")))
-void Woopsi::ApplicationMainLoop(){
+void Woopsi::ApplicationMainLoop() __attribute__ ((optnone)) {
 	//Earlier.. main from Woopsi SDK.
 	
 	//Handle TGDS stuff...

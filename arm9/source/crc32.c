@@ -104,7 +104,7 @@ ERR_EXIT:
 
 int Crc32_ComputeFile( FILE *file, unsigned long *outCrc32 )
 {
-	#define CRC_BUFFER_SIZE  (int)(1024*256)
+	#define CRC_BUFFER_SIZE  (int)(1024*64)
     char * buf = TGDSARM9Malloc(CRC_BUFFER_SIZE);
 	size_t bufLen;
     /** accumulate crc32 from file **/

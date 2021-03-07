@@ -174,7 +174,24 @@ static inline void menuShow(){
 	printarm7DebugBuffer();
 }
 
-int main(int argc, char **argv) {
+//ToolchainGenericDS-LinkedModule User implementation: WoopsiTGDS
+char args[8][MAX_TGDSFILENAME_LENGTH];
+char *argvs[8];
+int TGDSProjectReturnFromLinkedModule(){
+	//Return from TGDS-LinkedModule? Restore services
+	u8 DSHardware = ARM7ReloadFlashSync();
+	IRQInit(DSHardware);
+	int ret=FS_init();
+	// Create Woopsi UI
+	WoopsiTemplate WoopsiTemplateApp;
+	WoopsiTemplateProc = &WoopsiTemplateApp;
+	int readaArgc = getGlobalArgc();
+	char** readaArgv = getGlobalArgv();
+	return WoopsiTemplateApp.main(readaArgc, readaArgv); //return main(readaArgc, readaArgv);
+}
+
+static bool needToReload = true;
+int main(int argc, char **argv) __attribute__ ((optnone)) {
 	
 	/*			TGDS 1.6 Standard ARM9 Init code start	*/
 	bool isTGDSCustomConsole = false;	//set default console or custom console: default console
@@ -184,13 +201,21 @@ int main(int argc, char **argv) {
 	printf("              ");
 	printf("              ");
 	
-	bool isCustomTGDSMalloc = true;
-	setTGDSMemoryAllocator(getProjectSpecificMemoryAllocatorSetup(TGDS_ARM7_MALLOCSTART, TGDS_ARM7_MALLOCSIZE, isCustomTGDSMalloc));
-	sint32 fwlanguage = (sint32)getLanguage();
+	if(needToReload == true){
+		bool isCustomTGDSMalloc = true;
+		setTGDSMemoryAllocator(getProjectSpecificMemoryAllocatorSetup(TGDS_ARM7_MALLOCSTART, TGDS_ARM7_MALLOCSIZE, isCustomTGDSMalloc));
+		sint32 fwlanguage = (sint32)getLanguage();
+		
+		#ifdef ARM7_DLDI
+		setDLDIARM7Address((u32 *)TGDSDLDI_ARM7_ADDRESS);	//Required by ARM7DLDI!
+		#endif
+		switch_dswnifi_mode(dswifi_idlemode);
+		asm("mcr	p15, 0, r0, c7, c10, 4");
+		flush_icache_all();
+		flush_dcache_all();
+		needToReload = false;
+	}
 	
-	#ifdef ARM7_DLDI
-	setDLDIARM7Address((u32 *)TGDSDLDI_ARM7_ADDRESS);	//Required by ARM7DLDI!
-	#endif
 	int ret=FS_init();
 	if (ret == 0)
 	{
@@ -200,10 +225,7 @@ int main(int argc, char **argv) {
 	{
 		printf("FS Init error.");
 	}
-	switch_dswnifi_mode(dswifi_idlemode);
-	asm("mcr	p15, 0, r0, c7, c10, 4");
-	flush_icache_all();
-	flush_dcache_all();
+	
 	/*			TGDS 1.6 Standard ARM9 Init code end	*/
 	
 	//Show logo
