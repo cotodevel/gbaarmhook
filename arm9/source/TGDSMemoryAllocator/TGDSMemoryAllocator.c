@@ -21,6 +21,7 @@ USA
 
 #include "posixHandleTGDS.h"
 #include "xmem.h"
+#include "dldi.h"
 
 ////////[For custom Memory Allocator implementation]:////////
 //You need to override getProjectSpecificMemoryAllocatorSetup():
@@ -50,6 +51,9 @@ struct AllocatorInstance * getProjectSpecificMemoryAllocatorSetup(u32 ARM7Malloc
 	xmemsize = xmemsize - (xmemsize%1024);
 	XmemSetup(xmemsize, XMEM_BS);
 	XmemInit(customMemoryAllocator->ARM9MallocStartaddress, (u32)customMemoryAllocator->memoryToAllocate);
+	
+	//DLDI
+	customMemoryAllocator->DLDI9StartAddress = (u32)&_io_dldi_stub;
 	
 	return customMemoryAllocator;
 }
