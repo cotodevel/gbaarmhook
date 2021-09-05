@@ -19,10 +19,10 @@
 #include "gbaarmhookFS.h"
 #include "crc32.h"
 
-__attribute__((section(".itcm")))
+__attribute__((section(".dtcm")))
 WoopsiTemplate * WoopsiTemplateProc = NULL;
 
-void WoopsiTemplate::startup(int argc, char **argv) __attribute__ ((optnone)) {
+void WoopsiTemplate::startup(int argc, char **argv) {
 	
 	Rect rect;
 
@@ -111,7 +111,7 @@ void WoopsiTemplate::waitForAOrTouchScreenButtonMessage(MultiLineTextBox* thisLi
 	}
 }
 
-void WoopsiTemplate::handleValueChangeEvent(const GadgetEventArgs& e) __attribute__ ((optnone)) {
+void WoopsiTemplate::handleValueChangeEvent(const GadgetEventArgs& e) {
 
 	// Did a gadget fire this event?
 	if (e.getSource() != NULL) {
@@ -152,7 +152,7 @@ void WoopsiTemplate::handleValueChangeEvent(const GadgetEventArgs& e) __attribut
 			_MultiLineTextBoxLogger = new MultiLineTextBox(rect.x, rect.y, 262, 170, "Loading\n...", Gadget::GADGET_DRAGGABLE, 5);
 			_fileScreen->addGadget(_MultiLineTextBoxLogger);
 			
-			FILE * globalfileHandle = opengbarom(currentFileChosen, "r+");
+			FILE * globalfileHandle = opengbarom(currentFileChosen, (char*)"r+");
 			if (globalfileHandle != NULL){
 				_MultiLineTextBoxLogger->removeText(0);
 				_MultiLineTextBoxLogger->moveCursorToPosition(0);
@@ -277,7 +277,7 @@ void WoopsiTemplate::handleLidOpen() {
 	}
 }
 
-void WoopsiTemplate::handleClickEvent(const GadgetEventArgs& e) __attribute__ ((optnone)) {
+void WoopsiTemplate::handleClickEvent(const GadgetEventArgs& e) {
 	switch (e.getSource()->getRefcon()) {
 		//_Index Event
 		case 2:{
@@ -340,7 +340,7 @@ char currentFileChosen[256+1];
 
 //Called once Woopsi events are ended: TGDS Main Loop
 __attribute__((section(".itcm")))
-void Woopsi::ApplicationMainLoop() __attribute__ ((optnone)) {
+void Woopsi::ApplicationMainLoop() {
 	//Earlier.. main from Woopsi SDK.
 	
 	//Handle TGDS stuff...

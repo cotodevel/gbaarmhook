@@ -21,7 +21,7 @@
 #ToolchainGenericDS specific: Use Makefiles from either TGDS, or custom
 #Note: Woopsi template mostly targets ARM9 SDK. Thus the default ARM7 template is used
 export SOURCE_MAKEFILE7 = default
-export SOURCE_MAKEFILE9 = custom
+export SOURCE_MAKEFILE9 = default
 
 #Translate paths to windows with forward slashes
 cpath := $(shell pwd)
