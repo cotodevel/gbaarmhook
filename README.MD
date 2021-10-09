@@ -1,5 +1,8 @@
 ![ToolchainGenericDS](img/TGDS-Logo.png)
 
+NTR/TWL SDK: TGDS1.64
+
+Use TGDS1.64Stable: branch for stable features.
 
 This is the gbaARMHook project:
 
@@ -33,6 +36,12 @@ Put the above file in sd:/gba/ folder. Compile the sources, it will generate a f
 Run gbaARMHook.nds from any slot 1 based cart. After a while, you will see onscreen: "File patched successfully. Power Off NDS.", by then, it's safe to turn off the DS.
 Then, the new patched gba file has the ROP code integrated. And it works in real hardware or emulator.
 
-Note: UI Controls experimental.
+/release folder has the latest binary precompiled for your convenience.
+
+Latest stable release:
+https://bitbucket.org/Coto88/gbaARMHook/get/TGDS1.64Stable.zip
+
+Notes: 
+- UI Controls experimental.
 
 Coto
