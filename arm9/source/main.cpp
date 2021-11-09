@@ -171,7 +171,6 @@ static inline void menuShow(){
 		printf("Player Inactive");
 	}
 	printf("Available heap memory: %d >%d", getMaxRam(), TGDSPrintfColor_Cyan);
-	printarm7DebugBuffer();
 }
 
 //ToolchainGenericDS-LinkedModule User implementation: Called if TGDS-LinkedModule fails to reload ARM9.bin from DLDI.
@@ -188,11 +187,21 @@ int main(int argc, char **argv) {
 	GUI_init(isTGDSCustomConsole);
 	GUI_clear();
 	
+	//xmalloc init removes args, so save them
+	int i = 0;
+	for(i = 0; i < argc; i++){
+		argvs[i] = argv[i];
+	}
+
 	bool isCustomTGDSMalloc = true;
 	setTGDSMemoryAllocator(getProjectSpecificMemoryAllocatorSetup(TGDS_ARM7_MALLOCSTART, TGDS_ARM7_MALLOCSIZE, isCustomTGDSMalloc, TGDSDLDI_ARM7_ADDRESS));
 	sint32 fwlanguage = (sint32)getLanguage();
 	
-	switch_dswnifi_mode(dswifi_idlemode);
+	//argv destroyed here because of xmalloc init, thus restore them
+	for(i = 0; i < argc; i++){
+		argv[i] = argvs[i];
+	}
+
 	asm("mcr	p15, 0, r0, c7, c10, 4");
 	flush_icache_all();
 	flush_dcache_all();
