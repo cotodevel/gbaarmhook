@@ -39,7 +39,7 @@ Then, the new patched gba file has the ROP code integrated. And it works in real
 /release folder has the latest binary precompiled for your convenience.
 
 Latest stable release:
-https://bitbucket.org/Coto88/gbaARMHook/get/TGDS1.64Stable.zip
+https://bitbucket.org/Coto88/gbaARMHook/get/TGDS1.65.zip
 
 Notes: 
 - UI Controls experimental.
