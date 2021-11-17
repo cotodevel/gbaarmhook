@@ -211,9 +211,8 @@ int main(int argc, char **argv) {
 	{
 		printf("FS Init ok.");
 	}
-	else if(ret == -1)
-	{
-		printf("FS Init error.");
+	else{
+		printf("FS Init error: %d", ret);
 	}
 	
 	/*			TGDS 1.6 Standard ARM9 Init code end	*/
