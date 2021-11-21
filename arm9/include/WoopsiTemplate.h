@@ -9,7 +9,7 @@
 #include "textbox.h"
 #include "soundTGDS.h"
 #include "button.h"
-#include "MultiLineTextBox.h"
+#include "multilinetextbox.h"
 #include <string>
 using namespace std;
 
