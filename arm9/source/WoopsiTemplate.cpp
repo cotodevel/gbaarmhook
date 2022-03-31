@@ -149,7 +149,7 @@ void WoopsiTemplate::handleValueChangeEvent(const GadgetEventArgs& e) {
 					argvs[i] = (char*)&args[i][0];
 				}
 				
-				TGDSProjectRunLinkedModule(currentFileChosen, argCount, argvs, TGDSPROJECTNAME);
+				TGDSProjectRunLinkedModule(currentFileChosen, argCount, argvs, TGDSPROJECTNAME, 0, 0, 0, 0);
 			}
 
 			//Create a destroyable Textbox 
