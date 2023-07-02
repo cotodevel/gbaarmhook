@@ -15,8 +15,6 @@ using namespace std;
 
 using namespace WoopsiUI;
 
-#define TGDSPROJECTNAME ((char*) "GBAARMHook")
-
 class WoopsiTemplate : public Woopsi, public GadgetEventHandler {
 public:
 	void startup(int argc, char **argv);
