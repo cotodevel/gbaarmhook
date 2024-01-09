@@ -14,6 +14,7 @@
 #include "main.h"
 #include "posixHandleTGDS.h"
 #include "keypadTGDS.h"
+#include "ipcfifoTGDSUser.h"
 
 //TGDS Project Specific
 #include "gbaarmhookFS.h"
@@ -343,7 +344,7 @@ void Woopsi::ApplicationMainLoop() {
 	
 	switch(pendPlay){
 		case(1):{
-			internalCodecType = playSoundStream(currentFileChosen, _FileHandleVideo, _FileHandleAudio);
+			internalCodecType = playSoundStream(currentFileChosen, _FileHandleVideo, _FileHandleAudio, TGDS_ARM7_AUDIOBUFFER_STREAM);
 			if(internalCodecType == SRC_NONE){
 				//stop right now
 				pendPlay = 2;
