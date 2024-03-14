@@ -39,6 +39,7 @@ USA
 #include "click_raw.h"
 #include "ima_adpcm.h"
 #include "spitscTGDS.h"
+#include "loader.h"
 
 // Includes
 #include "WoopsiTemplate.h"
