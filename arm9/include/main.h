@@ -48,10 +48,7 @@ extern struct fd * _FileHandleVideo;
 extern struct fd * _FileHandleAudio;
 extern bool stopSoundStreamUser();
 extern void closeSoundUser();
-
 extern int extract_word(u32 * buffer,u32 word,int size ,u32 * buffer_out,u32 delimiter,u8 type);
-extern char args[8][MAX_TGDSFILENAME_LENGTH];
-extern char *argvs[8];
 
 #ifdef __cplusplus
 }

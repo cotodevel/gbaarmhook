@@ -15,6 +15,7 @@
 #include "posixHandleTGDS.h"
 #include "keypadTGDS.h"
 #include "ipcfifoTGDSUser.h"
+#include "loader.h"
 
 //TGDS Project Specific
 #include "gbaarmhookFS.h"
