@@ -33,6 +33,8 @@ USA
 extern "C" {
 #endif
 
+extern u32 * getTGDSMBV3ARM7Bootloader();
+
 //patches for ARM code
 extern u32 PATCH_BOOTCODE();
 extern u32 PATCH_START();
