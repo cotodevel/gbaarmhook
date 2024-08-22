@@ -23,8 +23,9 @@ USA
 
 #include "typedefsTGDS.h"
 #include "dsregs.h"
-#include "fatfslayerTGDS.h"
 #include "utilsTGDS.h"
+#include "limitsTGDS.h"
+#include "dldi.h"
 
 #endif
 
