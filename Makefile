@@ -20,7 +20,7 @@
 
 #ToolchainGenericDS specific: Use Makefiles from either TGDS, or custom
 export SOURCE_MAKEFILE7 = default
-export SOURCE_MAKEFILE9 = custom
+export SOURCE_MAKEFILE9 = default
 
 #Shared
 ifeq ($(TGDS_ENV),windows)
@@ -139,9 +139,7 @@ compile	:
 	-$(MAKE)	-R	-C	$(PosIndCodeDIR_FILENAME)/$(DIR_ARM9)/
 	-cp	-r	$(TARGET_LIBRARY_MAKEFILES_SRC7_NOFPIC)	$(CURDIR)/common/templateCode/stage1_7/
 	$(MAKE)	-R	-C	$(CURDIR)/common/templateCode/stage1_7/
-	$(MAKE)	-R	-C	$(CURDIR)/common/templateCode/arm7bootldr/
-	-mv $(CURDIR)/common/templateCode/arm7bootldr/arm7vram.bin	$(DIR_ARM9)/data/arm7vram.bin
-	-mv $(CURDIR)/common/templateCode/arm7bootldr/arm7vram_twl.bin	$(DIR_ARM9)/data/arm7vram_twl.bin
+	$(MAKE)	-R	-C	$(CURDIR)/arm7bootldr_standalone/
 	
 ifeq ($(SOURCE_MAKEFILE9),default)
 	cp	-r	$(TARGET_LIBRARY_MAKEFILES_SRC9_NOFPIC)	$(CURDIR)/$(DIR_ARM9)
@@ -165,7 +163,7 @@ each_obj = $(foreach dirres,$(dir_read_arm9_files),$(dirres).)
 	
 clean:
 	$(MAKE) clean	-C	$(PosIndCodeDIR_FILENAME)/$(DIR_ARM7)/
-	$(MAKE) clean	-C	$(CURDIR)/common/templateCode/arm7bootldr/
+	$(MAKE) clean	-C	$(CURDIR)/arm7bootldr_standalone/
 #--------------------------------------------------------------------
 	$(MAKE)	clean	-C	$(DIR_ARM9)/
 	$(MAKE) clean	-C	$(PosIndCodeDIR_FILENAME)/$(DIR_ARM9)/
@@ -174,7 +172,7 @@ ifeq ($(SOURCE_MAKEFILE9),default)
 endif
 	-@rm -rf $(CURDIR)/$(PosIndCodeDIR_FILENAME)/$(DIR_ARM7)/Makefile
 	-@rm -rf $(CURDIR)/$(PosIndCodeDIR_FILENAME)/$(DIR_ARM9)/Makefile
-	-@rm -fr $(EXECUTABLE_FNAME)	$(TGDSPROJECTNAME).srl	$(CURDIR)/common/templateCode/
+	-@rm -fr $(EXECUTABLE_FNAME)	$(TGDSPROJECTNAME).srl	$(CURDIR)/common/templateCode/	$(DIR_ARM9)/data/arm7bootldr_standalone.bin	$(DIR_ARM9)/data/arm7bootldr_standalone_twl.bin
 	-@rm -rf	$(DIR_ARM9)/data/arm7vram.bin	$(DIR_ARM9)/data/arm7vram_twl.bin
 	
 rebase:

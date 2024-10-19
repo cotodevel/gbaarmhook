@@ -16,6 +16,7 @@
 #include "keypadTGDS.h"
 #include "ipcfifoTGDSUser.h"
 #include "loader.h"
+#include "powerTGDS.h"
 
 //TGDS Project Specific
 #include "gbaarmhookFS.h"
@@ -127,20 +128,15 @@ void WoopsiTemplate::handleValueChangeEvent(const GadgetEventArgs& e) {
 			strObj.copyToCharArray(currentFileChosen);
 			
 			//Boot .NDS file! (homebrew only)
-			char tmpName[256];
-			char ext[256];
-			strcpy(tmpName, currentFileChosen);
-			separateExtension(tmpName, ext);
-			strlwr(ext);
-			if(strncmp(ext,".nds", 4) == 0){
- 				char thisArgv[3][MAX_TGDSFILENAME_LENGTH];
-				memset(thisArgv, 0, sizeof(thisArgv));
-				strcpy(&thisArgv[0][0], TGDSPROJECTNAME);	//Arg0:	This Binary loaded
-				strcpy(&thisArgv[1][0], currentFileChosen);	//Arg1:	NDS Binary reloaded
-				strcpy(&thisArgv[2][0], "");					//Arg2: NDS Binary ARG0
-				u32 * payload = getTGDSMBV3ARM7Bootloader();
-				TGDSMultibootRunNDSPayload(currentFileChosen, (u8*)payload, 3, (char*)&thisArgv);
- 			}			
+			char thisArgv[3][MAX_TGDSFILENAME_LENGTH];
+			memset(thisArgv, 0, sizeof(thisArgv));
+			strcpy(&thisArgv[0][0], "");	//Arg0:	This Binary loaded
+			strcpy(&thisArgv[1][0], "");	//Arg1:	NDS Binary reloaded
+			strcpy(&thisArgv[2][0], "");	//Arg2: NDS Binary ARG0		
+			u32 * payload = getTGDSARM7VRAMCore();
+			if(TGDSMultibootRunNDSPayload(currentFileChosen, (u8*)payload, 0, (char*)&thisArgv) == false){ //should never reach here, nor even return true. Should fail it returns false
+				//Should NTR/TWL binary booting fail, proceed to TGDSProject's main code
+			}
 			
 			//Create a destroyable Textbox 
 			Rect rect;
@@ -340,9 +336,6 @@ void Woopsi::ApplicationMainLoop() {
 	//Earlier.. main from Woopsi SDK.
 	
 	//Handle TGDS stuff...
-	
-	
-	
 	switch(pendPlay){
 		case(1):{
 			internalCodecType = playSoundStream(currentFileChosen, _FileHandleVideo, _FileHandleAudio, TGDS_ARM7_AUDIOBUFFER_STREAM);
@@ -360,5 +353,20 @@ void Woopsi::ApplicationMainLoop() {
 			pendPlay = 0;
 		}
 		break;
+	}
+	
+	if(keysDown() & KEY_R){	
+		GUI.GBAMacroMode = !GUI.GBAMacroMode; //swap LCD
+		if(GUI.GBAMacroMode == true){
+			setBacklight(POWMAN_BACKLIGHT_BOTTOM_BIT);
+		}
+		else{
+			setBacklight(POWMAN_BACKLIGHT_TOP_BIT|POWMAN_BACKLIGHT_BOTTOM_BIT);
+		}
+		TGDSLCDSwap();
+		
+		while(keysDown() & KEY_R){
+			scanKeys();
+		}
 	}
 }
