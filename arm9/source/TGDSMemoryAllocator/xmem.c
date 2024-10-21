@@ -12,10 +12,11 @@
 #include <string.h>
 #include "typedefsTGDS.h"
 #include "xmem.h"
-#include "utilsTGDS.h"
+#include "posixHandleTGDS.h"
+#include "InterruptsARMCores_h.h"
 
-// default use 1.5 MB
-unsigned int XMEMTOTALSIZE = (1500*1024);
+// default use 128K (ARM9 Mapped), may be overriden.
+unsigned int XMEMTOTALSIZE = (128*1024);
 
 // how many bytes will each of our blocks be?
 unsigned short XMEM_BLOCKSIZE = 128;
@@ -194,11 +195,11 @@ void Xfree(const void *ptr) {
 	int block,sblock;
 	
 	while (1) {
-		if (ptr < xmem_blocks) {
+		if ((int)ptr < (int)xmem_blocks) {
 			//printf("XM: Free: NXML %8.8X ",(unsigned int)ptr);
 			break;
 		}
-		if (ptr > (xmem_blocks+(XMEM_BLOCKCOUNT*XMEM_BLOCKSIZE))) {
+		if ((int)ptr > ((int)(xmem_blocks+(XMEM_BLOCKCOUNT*XMEM_BLOCKSIZE))) ) {
 			//printf("XM: Free: NXMG %8.8X ",(u32)ptr);
 			break;
 		}

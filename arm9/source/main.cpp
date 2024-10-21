@@ -18,33 +18,19 @@ USA
 */
 
 #include "main.h"
-#include "dsregs.h"
-#include "dsregs_asm.h"
-#include "typedefsTGDS.h"
-#include "gui_console_connector.h"
-#include "TGDSLogoLZSSCompressed.h"
-#include "ipcfifoTGDSUser.h"
-#include "dldi.h"
-#include "loader.h"
-#include "dmaTGDS.h"
-#include "nds_cp15_misc.h"
-#include "fileBrowse.h"
-#include <stdio.h>
+#include "keypadTGDS.h"
 #include "biosTGDS.h"
-#include "global_settings.h"
+#include "dldi.h"
+#include "fileBrowse.h"
+#include "dswnifi_lib.h"
+#include "ipcfifoTGDSUser.h"
 #include "posixHandleTGDS.h"
 #include "TGDSMemoryAllocator.h"
-#include "consoleTGDS.h"
-#include "soundTGDS.h"
-#include "nds_cp15_misc.h"
+#include "spitscTGDS.h"
 #include "fatfslayerTGDS.h"
 #include "utilsTGDS.h"
-#include "ima_adpcm.h"
-#include "linkerTGDS.h"
-#include "dldi.h"
-#include "utils.twl.h"
-#include "spitscTGDS.h"
 #include "loader.h"
+#include "TGDSLogoLZSSCompressed.h"
 
 // Includes
 #include "WoopsiTemplate.h"
@@ -53,16 +39,16 @@ USA
 #include "fatfslayerTGDS.h"
 #include <stdio.h>
 
-//ARM7 VRAM core
-#include "arm7bootldr.h"
-#include "arm7bootldr_twl.h"
+//TGDS-MB ARM7 Bootldr (embedded ARM7 VRAM core)
+#include "arm7bootldr_standalone.h"
+#include "arm7bootldr_standalone_twl.h"
 
-u32 * getTGDSMBV3ARM7Bootloader(){
+u32 * getTGDSARM7VRAMCore(){	//Required by ToolchainGenericDS-multiboot v3
 	if(__dsimode == false){
-		return (u32*)&arm7bootldr[0];	
+		return (u32*)&arm7bootldr_standalone[0];	
 	}
 	else{
-		return (u32*)&arm7bootldr_twl[0];
+		return (u32*)&arm7bootldr_standalone_twl[0];
 	}
 }
 
@@ -203,14 +189,18 @@ __attribute__ ((optnone))
 int main(int argc, char **argv) {
 	/*			TGDS 1.6 Standard ARM9 Init code start	*/
 	//Save Stage 1: IWRAM ARM7 payload: NTR/TWL (0x03800000)
-	memcpy((void *)TGDS_MB_V3_ARM7_STAGE1_ADDR, (const void *)0x02380000, (int)(96*1024));	//
-	coherent_user_range_by_size((uint32)TGDS_MB_V3_ARM7_STAGE1_ADDR, (int)(96*1024)); //		also for TWL binaries 
+	memcpy((void *)TGDS_MB_V3_ARM7_STAGE1_ADDR, (const void *)0x02380000, (int)(96*1024));
+	coherent_user_range_by_size((uint32)TGDS_MB_V3_ARM7_STAGE1_ADDR, (int)(96*1024));
+	
+	//Execute Stage 2: VRAM ARM7 payload: NTR/TWL (0x06000000)
+	u32 * payload = getTGDSARM7VRAMCore();
+	executeARM7Payload((u32)0x02380000, 96*1024, payload);
 	
 	bool isTGDSCustomConsole = false;	//set default console or custom console: default console
 	GUI_init(isTGDSCustomConsole);
 	GUI_clear();
 
-	bool isCustomTGDSMalloc = true;
+	bool isCustomTGDSMalloc = true;		//Xmem's malloc
 	setTGDSMemoryAllocator(getProjectSpecificMemoryAllocatorSetup(isCustomTGDSMalloc));
 	sint32 fwlanguage = (sint32)getLanguage();
 	
@@ -257,6 +247,9 @@ int main(int argc, char **argv) {
 	//Show logo
 	RenderTGDSLogoMainEngine((uint8*)&TGDSLogoLZSSCompressed[0], TGDSLogoLZSSCompressed_size);
 	menuShow();
+	
+	GUI.GBAMacroMode = false;	//GUI console at bottom screen
+	TGDSLCDSwap();
 	
 	// Create Woopsi UI
 	WoopsiTemplate WoopsiTemplateApp;

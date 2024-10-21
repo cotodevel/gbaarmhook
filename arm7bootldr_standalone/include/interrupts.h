@@ -18,29 +18,11 @@ USA
 
 */
 
-#ifndef __gui_console_h__
-#define __gui_console_h__
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
-#include <stdarg.h>
-#include <malloc.h>
-#include <ctype.h>
-#include "ipcfifoTGDSUser.h"
+#ifndef __interrupts7_h__
+#define __interrupts7_h__
 
 #include "typedefsTGDS.h"
 #include "dsregs.h"
-#include "consoleTGDS.h"
-#include "biosTGDS.h"
-#include "InterruptsARMCores_h.h"
-#include "dmaTGDS.h"
-
-#include "posixHandleTGDS.h"
-#include "fatfslayerTGDS.h"
-#include "keypadTGDS.h"
-#include "videoTGDS.h"
 
 #endif
 
@@ -48,15 +30,16 @@ USA
 extern "C" {
 #endif
 
-////////[Default Console implementation is selected, thus stubs are implemented here]////////
-
-//Definition that overrides the weaksymbol expected from toolchain to init console video subsystem
-extern vramSetup * getProjectSpecificVRAMSetup();
-
-//Custom console VRAM layout setup
-
-//1) VRAM Layout
-extern bool InitProjectSpecificConsole();
+extern void IpcSynchandlerUser(uint8 ipcByte);
+extern void Timer0handlerUser();
+extern void Timer1handlerUser();
+extern void Timer2handlerUser();
+extern void Timer3handlerUser();
+extern void HblankUser();
+extern void VblankUser();
+extern void VcounterUser();
+extern void screenLidHasOpenedhandlerUser();
+extern void screenLidHasClosedhandlerUser();
 
 #ifdef __cplusplus
 }
