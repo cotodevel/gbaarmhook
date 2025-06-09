@@ -7,7 +7,7 @@ master: Development branch. Use TGDS1.65: branch for stable features.
 This is the gbaARMHook project:
 
 1.	Compile Toolchain:
-To compile this project you will need to follow the steps at https://bitbucket.org/Coto88/toolchaingenericds :
+To compile this project you will need to follow the steps at https://github.com/cotodevel/toolchaingenericds :
 Then simply extract the project somewhere.
 
 2.	Compile this project: 
@@ -43,6 +43,6 @@ Then, the new patched gba file has the ROP code integrated. And it works in real
 /release folder has the latest binary precompiled for your convenience.
 
 Latest stable release:
-https://bitbucket.org/Coto88/gbaARMHook/get/TGDS1.65.zip
+http://github.com/cotodevel/gbaARMHook/archive/TGDS1.65.zip
 
 Coto
