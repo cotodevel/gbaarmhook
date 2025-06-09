@@ -144,7 +144,6 @@ void playerStopARM7(){
 	}
 }
 
-//Commit: https://bitbucket.org/Coto88/toolchaingenericds/commits/3ed8415e007335797736dd1315b9e11a63d1708f
 #if (defined(__GNUC__) && !defined(__clang__))
 __attribute__((optimize("O0")))
 #endif
