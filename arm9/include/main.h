@@ -26,6 +26,7 @@ USA
 #include "utilsTGDS.h"
 #include "limitsTGDS.h"
 #include "dldi.h"
+#include "TGDS_threads.h"
 
 #endif
 
@@ -34,7 +35,7 @@ USA
 extern "C" {
 #endif
 
-extern u32 * getTGDSARM7VRAMCore();
+extern u32 * getTGDSMBV3ARM7Bootloader();
 
 //patches for ARM code
 extern u32 PATCH_BOOTCODE();
@@ -51,6 +52,7 @@ extern struct fd * _FileHandleVideo;
 extern struct fd * _FileHandleAudio;
 extern bool stopSoundStreamUser();
 extern void closeSoundUser();
+extern struct task_Context * internalTGDSThreads;
 extern int extract_word(u32 * buffer,u32 word,int size ,u32 * buffer_out,u32 delimiter,u8 type);
 
 #ifdef __cplusplus

@@ -128,14 +128,20 @@ void WoopsiTemplate::handleValueChangeEvent(const GadgetEventArgs& e) {
 			strObj.copyToCharArray(currentFileChosen);
 			
 			//Boot .NDS file! (homebrew only)
-			char thisArgv[3][MAX_TGDSFILENAME_LENGTH];
-			memset(thisArgv, 0, sizeof(thisArgv));
-			strcpy(&thisArgv[0][0], "");	//Arg0:	This Binary loaded
-			strcpy(&thisArgv[1][0], "");	//Arg1:	NDS Binary reloaded
-			strcpy(&thisArgv[2][0], "");	//Arg2: NDS Binary ARG0		
-			u32 * payload = getTGDSARM7VRAMCore();
-			if(TGDSMultibootRunNDSPayload(currentFileChosen, (u8*)payload, 0, (char*)&thisArgv) == false){ //should never reach here, nor even return true. Should fail it returns false
-				//Should NTR/TWL binary booting fail, proceed to TGDSProject's main code
+			bool isTGDSTWLHomebrew = false;
+			if(isNTROrTWLBinary(currentFileChosen, &isTGDSTWLHomebrew) != notTWLOrNTRBinary){
+				
+				//Execute Stage 1: IWRAM ARM7 payload: NTR/TWL (0x03800000)
+				u32 * payload = (u32 *)TGDS_MB_V3_ARM7_STAGE1_ADDR;
+				executeARM7Payload((u32)0x02380000, 96*1024, payload);
+
+				char thisArgv[3][MAX_TGDSFILENAME_LENGTH];
+				memset(thisArgv, 0, sizeof(thisArgv));
+				strcpy(&thisArgv[0][0], "");	//Arg0:	This Binary loaded
+				strcpy(&thisArgv[1][0], "");	//Arg1:	NDS Binary reloaded
+				strcpy(&thisArgv[2][0], "");					//Arg2: NDS Binary ARG0
+				payload = getTGDSMBV3ARM7Bootloader();
+				TGDSMultibootRunNDSPayload(currentFileChosen, (u8*)payload, 0, (char*)&thisArgv);
 			}
 			
 			//Create a destroyable Textbox 
